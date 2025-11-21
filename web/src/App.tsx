@@ -1,9 +1,10 @@
+import { Router } from "@/routes";
 import "@/App.css";
 
 function App() {
   return (
     <>
-      <h1>QuickTalk</h1>
+      <Router />
     </>
   );
 }
