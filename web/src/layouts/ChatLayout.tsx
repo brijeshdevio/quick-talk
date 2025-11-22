@@ -6,7 +6,7 @@ export function ChatLayout() {
     <>
       <div className="flex">
         <ChatList />
-        <main className="w-full h-screen">
+        <main className="w-full h-screen bg-base-300">
           <Outlet />
         </main>
       </div>
