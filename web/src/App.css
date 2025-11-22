@@ -8,7 +8,12 @@
 }
 
 .font-bricolage-grotesque,
-.logo {
+.logo,
+h1,
+h2,
+h3,
+h4,
+h5 {
   font-family: "Bricolage Grotesque", sans-serif;
   font-optical-sizing: auto;
   font-weight: 700;
