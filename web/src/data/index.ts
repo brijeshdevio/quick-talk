@@ -25,7 +25,7 @@ export const userProfile = {
   name: "Alex Doe",
   image: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
   email: "alex.doe@example.com",
-}
+};
 
 export const chatList = [
   {
@@ -107,5 +107,64 @@ export const chatList = [
     lastMessage: "That works for me.",
     lastSeen: "2025-11-22T16:05:00Z",
     isOnline: false,
-  }
+  },
+];
+
+export const messages = [
+  {
+    _id: "m1",
+    senderId: "1",
+    receiverId: "2",
+    message: "Hey! Are you available right now?",
+    createdAt: "2025-11-23T09:10:00Z",
+  },
+  {
+    _id: "m2",
+    senderId: "2",
+    receiverId: "1",
+    message: "Yes, what's up?",
+    createdAt: "2025-11-23T09:11:12Z",
+  },
+  {
+    _id: "m3",
+    senderId: "1",
+    receiverId: "2",
+    message: "I wanted to discuss the project update.",
+    createdAt: "2025-11-23T09:12:30Z",
+  },
+  {
+    _id: "m4",
+    senderId: "2",
+    receiverId: "1",
+    message: "Sure, I can talk now.",
+    createdAt: "2025-11-23T09:13:00Z",
+  },
+  {
+    _id: "m5",
+    senderId: "1",
+    receiverId: "2",
+    message: "Great! Give me two minutes.",
+    createdAt: "2025-11-23T09:14:25Z",
+  },
+  {
+    _id: "m6",
+    senderId: "2",
+    receiverId: "1",
+    message: "Alright, I'll wait.",
+    createdAt: "2025-11-23T09:15:10Z",
+  },
+  {
+    _id: "m7",
+    senderId: "1",
+    receiverId: "2",
+    message: "Okay, I'm here.",
+    createdAt: "2025-11-23T09:17:40Z",
+  },
+  {
+    _id: "m8",
+    senderId: "2",
+    receiverId: "1",
+    message: "Perfect, let's start.",
+    createdAt: "2025-11-23T09:18:00Z",
+  },
 ];

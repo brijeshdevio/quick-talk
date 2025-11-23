@@ -6,3 +6,9 @@ export interface ChatItemProps {
   lastSeen: string;
   isOnline: boolean;
 }
+
+export interface MessageProps {
+  _id: string;
+  createdAt: string;
+  message: string;
+}
