@@ -22,6 +22,11 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<Response> {
     const { accessToken } = await this.authService.login(body);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    });
     return res.json({ message: 'You Logged in successfully.', accessToken });
   }
 }
