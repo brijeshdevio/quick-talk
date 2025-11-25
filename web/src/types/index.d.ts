@@ -1,3 +1,23 @@
+export interface UserType {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export interface AuthContextType {
+  user: UserType | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+}
+
+export interface RegisterType {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export type LoginType = Omit<RegisterType, "name">;
+
 export interface ChatItemProps {
   _id: string;
   name: string;
