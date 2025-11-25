@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common';
@@ -26,5 +26,14 @@ export class UserController {
     const userId = req.user.sub;
     const users = await this.userService.getUsers(userId);
     return res.json({ users });
+  }
+
+  @Get(':id')
+  async handleGetUser(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const user = await this.userService.getUser(id);
+    return res.json({ user });
   }
 }

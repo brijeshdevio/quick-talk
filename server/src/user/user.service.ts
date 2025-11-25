@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -38,5 +39,19 @@ export class UserService {
       .find({ _id: { $ne: userId } })
       .lean()
       .select('_id name email');
+  }
+
+  async getUser(userId: string): Promise<User> {
+    this.isValidMongoID(userId);
+
+    const user = await this.userModel
+      .findById(userId)
+      .lean()
+      .select('_id name');
+
+    if (user) {
+      return user;
+    }
+    throw new NotFoundException('User not found.');
   }
 }
