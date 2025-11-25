@@ -32,4 +32,11 @@ export class UserService {
       'You are not authorized to access this resource.',
     );
   }
+
+  async getUsers(userId: string): Promise<User[]> {
+    return await this.userModel
+      .find({ _id: { $ne: userId } })
+      .lean()
+      .select('_id name email');
+  }
 }

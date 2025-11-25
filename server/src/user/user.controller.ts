@@ -17,4 +17,14 @@ export class UserController {
     const user = await this.userService.getProfile(userId);
     return res.json({ user });
   }
+
+  @Get()
+  async handleGetUsers(
+    @Req() req: { user: { sub: string } },
+    @Res() res: Response,
+  ): Promise<Response> {
+    const userId = req.user.sub;
+    const users = await this.userService.getUsers(userId);
+    return res.json({ users });
+  }
 }
