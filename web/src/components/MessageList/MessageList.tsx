@@ -1,6 +1,8 @@
-import { messages } from "@/data";
 import { formateTime } from "@/utils";
+import { Fragment, useState } from "react";
+import { useSocket } from "@/hooks/useSocket";
 import type { MessageProps } from "@/types";
+import { useAuth } from "@/auth";
 
 function ReceiverMessage({ message, createdAt }: MessageProps) {
   return (
@@ -25,16 +27,29 @@ function SenderMessage({ message, createdAt }: MessageProps) {
 }
 
 export function MessageList() {
+  const [messages, setMessages] = useState<MessageProps[]>([]);
+  const { user } = useAuth();
+
+  // Receive message
+  useSocket("receive_message", (data: MessageProps) => {
+    setMessages((prev) => [...prev, data]);
+  });
+
+  // Receive self messages
+  useSocket("self_message", (data: MessageProps) => {
+    setMessages((prev) => [...prev, data]);
+  });
+
   return (
     <>
       {messages?.map((message) => (
-        <>
-          {message.senderId == "1" ? (
+        <Fragment key={message?._id}>
+          {message?.sender == user?._id ? (
             <SenderMessage {...message} />
           ) : (
             <ReceiverMessage {...message} />
           )}
-        </>
+        </Fragment>
       ))}
     </>
   );

@@ -31,4 +31,6 @@ export interface MessageProps {
   _id: string;
   createdAt: string;
   message: string;
+  sender: string;
+  receiver: string;
 }

@@ -1,28 +1,72 @@
 import { SendHorizontal } from "lucide-react";
-import { MessageList } from "@/components";
-import { userProfile } from "@/data";
-import { useUser } from "@/hooks/useUser";
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useEffect, type FormEvent } from "react";
+import { MessageList } from "@/components";
+import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/auth";
+import { socket } from "@/lib/socket";
 
 export function Message() {
   const { channelId } = useParams();
+  const { user } = useAuth();
   const {
     getUserMutate: { mutate, data },
   } = useUser();
 
+  /** ───────────────────────────
+   *  Send message
+   * ───────────────────────────*/
+  const handleSendMessage = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const message = formData.get("message");
+
+    if (!user?._id || !channelId || !message) return;
+
+    socket.emit("send_message", {
+      message,
+      sender: user._id,
+      receiver: channelId,
+    });
+
+    form.reset();
+  };
+
+  /** ───────────────────────────
+   *  Connect socket only ONCE
+   * ───────────────────────────*/
   useEffect(() => {
-    if (channelId) mutate(channelId);
-  }, [channelId]);
+    if (!socket.connected) socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  /** ───────────────────────────
+   *  Join room whenever channel changes
+   * ───────────────────────────*/
+  useEffect(() => {
+    if (!user?._id || !channelId) return;
+
+    socket.emit("join_room", {
+      sender: user._id,
+      receiver: channelId,
+    });
+
+    mutate(channelId);
+  }, [channelId, user?._id]);
 
   return (
     <>
+      {/* HEADER */}
       <section className="w-full px-5 py-1 bg-base-100 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className={`avatar avatar-placeholder avatar-online`}>
+          <div className="avatar avatar-online avatar-placeholder">
             <div className="bg-neutral text-neutral-content w-10 rounded-full">
               {data?.user?.image ? (
-                <img src={userProfile.image} alt="" />
+                <img src={data.user.image} alt={data?.user?.name} />
               ) : (
                 <span>{data?.user?.name?.[0]}</span>
               )}
@@ -34,18 +78,30 @@ export function Message() {
           </div>
         </div>
       </section>
+
+      {/* MESSAGE LIST */}
       <section className="h-[calc(100vh-107px)] px-3 sm:px-5 md:px-10 py-10 overflow-y-scroll">
         <MessageList />
       </section>
+
+      {/* INPUT */}
       <section className="w-full px-3 sm:px-5 md:px-10 bg-base-100 border-t border-white/10">
-        <div className="flex items-center gap-4 px-3 py-2 border-b border-white/5">
+        <form
+          className="flex items-center gap-4 px-3 py-2 border-b border-white/5"
+          onSubmit={handleSendMessage}
+        >
           <label className="input input-bordered w-full">
-            <input type="text" placeholder="Type a message..." />
+            <input
+              type="text"
+              placeholder="Type a message..."
+              name="message"
+              required
+            />
           </label>
           <button className="btn btn-primary">
             <SendHorizontal size={20} />
           </button>
-        </div>
+        </form>
       </section>
     </>
   );
