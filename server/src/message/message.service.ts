@@ -20,4 +20,17 @@ export class MessageService {
     this.isValidMongoID(data.sender);
     return this.messageModel.create(data);
   }
+
+  async getMessages(sender: string, receiver: string) {
+    this.isValidMongoID(receiver);
+    return this.messageModel
+      .find({
+        $or: [
+          { sender: sender, receiver: receiver },
+          { sender: receiver, receiver: sender },
+        ],
+      })
+      .lean()
+      .select('-__v');
+  }
 }
