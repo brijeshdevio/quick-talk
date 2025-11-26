@@ -1,8 +1,8 @@
-import { Plus, Search } from "lucide-react";
-import { chatList } from "@/data";
 import { formateTime } from "@/utils";
 import type { ChatItemProps } from "@/types";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
+import { Plus, Search } from "lucide-react";
 
 function Profile() {
   return (
@@ -29,6 +29,7 @@ function SearchBar() {
 }
 
 function ChatItem({
+  _id,
   name,
   profileImage,
   lastMessage,
@@ -36,36 +37,49 @@ function ChatItem({
   isOnline,
 }: ChatItemProps) {
   return (
-    <div className="group flex gap-3 px-3 py-2 hover:bg-primary/50 cursor-pointer">
-      <div
-        className={`avatar avatar-placeholder ${isOnline && "avatar-online"}`}
-      >
-        <div className="bg-neutral text-neutral-content w-10 rounded-full">
-          <img src={profileImage} alt="" />
+    <NavLink
+      to={`/c/${_id}`}
+      className={() => `hover:bg-primary/50 bg-blue-100`}
+    >
+      <div className="group flex gap-3 px-3 py-2 cursor-pointer">
+        <div
+          className={`avatar avatar-placeholder ${isOnline && "avatar-online"}`}
+        >
+          <div className="bg-neutral text-neutral-content w-10 rounded-full">
+            {profileImage ? (
+              <img src={profileImage} alt="" />
+            ) : (
+              <span>{name?.[0]}</span>
+            )}
+          </div>
+        </div>
+        <div className="w-full">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base">{name}</h3>
+            {isOnline ? (
+              <p className="text-xs text-primary">Online</p>
+            ) : (
+              <p className="text-xs">
+                {lastSeen && formateTime(lastSeen, { mode: "date" })}
+              </p>
+            )}
+          </div>
+          <p className="text-sm opacity-70 line-clamp-1">{lastMessage}</p>
         </div>
       </div>
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base">{name}</h3>
-          {isOnline ? (
-            <p className="text-xs text-primary">Online</p>
-          ) : (
-            <p className="text-xs">{formateTime(lastSeen, { mode: "date" })}</p>
-          )}
-        </div>
-        <p className="text-sm opacity-70 line-clamp-1">{lastMessage}</p>
-      </div>
-    </div>
+    </NavLink>
   );
 }
 
 export function ChatList() {
+  const { getUsersQuery } = useUser();
+
   return (
     <aside className="min-w-80 h-screen bg-base-100  border-r border-white/5">
       <Profile />
       <SearchBar />
       <div className="h-[calc(100vh-50px-57px)] overflow-y-scroll">
-        {chatList?.map((chat: ChatItemProps) => (
+        {getUsersQuery.data?.users?.map((chat: ChatItemProps) => (
           <ChatItem key={chat._id} {...chat} />
         ))}
       </div>

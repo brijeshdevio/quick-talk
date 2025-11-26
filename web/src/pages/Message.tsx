@@ -1,23 +1,35 @@
 import { SendHorizontal } from "lucide-react";
 import { MessageList } from "@/components";
 import { userProfile } from "@/data";
+import { useUser } from "@/hooks/useUser";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 export function Message() {
+  const { channelId } = useParams();
+  const {
+    getUserMutate: { mutate, data },
+  } = useUser();
+
+  useEffect(() => {
+    if (channelId) mutate(channelId);
+  }, [channelId]);
+
   return (
     <>
       <section className="w-full px-5 py-1 bg-base-100 border-b border-white/10">
         <div className="flex items-center gap-2">
           <div className={`avatar avatar-placeholder avatar-online`}>
             <div className="bg-neutral text-neutral-content w-10 rounded-full">
-              {userProfile.image ? (
+              {data?.user?.image ? (
                 <img src={userProfile.image} alt="" />
               ) : (
-                <span>{userProfile.name?.[0]}</span>
+                <span>{data?.user?.name?.[0]}</span>
               )}
             </div>
           </div>
           <div>
-            <h3>{userProfile.name}</h3>
+            <h3>{data?.user?.name}</h3>
             <p className="text-xs text-primary">Online</p>
           </div>
         </div>
