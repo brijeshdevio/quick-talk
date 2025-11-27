@@ -34,3 +34,9 @@ export interface MessageProps {
   sender: string;
   receiver: string;
 }
+
+export interface ContactType {
+  _id: string;
+  name: string;
+  email: string;
+}

@@ -168,3 +168,56 @@ export const messages = [
     createdAt: "2025-11-23T09:18:00Z",
   },
 ];
+
+export const contacts = [
+  {
+    _id: "u1f92a7c",
+    name: "Liam Carter",
+    email: "liam.carter@example.com",
+  },
+  {
+    _id: "u2b73e14",
+    name: "Ava Mitchell",
+    email: "ava.mitchell@example.com",
+  },
+  {
+    _id: "u3d81f5b",
+    name: "Noah Ramirez",
+    email: "noah.ramirez@example.com",
+  },
+  {
+    _id: "u4c59a83",
+    name: "Sophia Bennett",
+    email: "sophia.bennett@example.com",
+  },
+  {
+    _id: "u5a17c9d",
+    name: "Ethan Rivera",
+    email: "ethan.rivera@example.com",
+  },
+  {
+    _id: "u6e42b67",
+    name: "Mia Harrison",
+    email: "mia.harrison@example.com",
+  },
+  {
+    _id: "u7c83df1",
+    name: "James Walker",
+    email: "james.walker@example.com",
+  },
+  {
+    _id: "u8b15a2e",
+    name: "Isabella Brooks",
+    email: "isabella.brooks@example.com",
+  },
+  {
+    _id: "u9f64b10",
+    name: "Lucas Hayes",
+    email: "lucas.hayes@example.com",
+  },
+  {
+    _id: "u10d27ec",
+    name: "Charlotte Turner",
+    email: "charlotte.turner@example.com",
+  },
+];
