@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 
 const jwtService: JwtService = new JwtService({
   secret: process.env.JWT_SECRET,
-  signOptions: { expiresIn: '1h' },
+  signOptions: { expiresIn: '1d' },
 });
 
 export async function wsAuthGuard(socket: Socket): Promise<string | void> {

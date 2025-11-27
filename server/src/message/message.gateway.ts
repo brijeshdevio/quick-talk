@@ -5,17 +5,21 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { MessageService } from './message.service';
-import { CreateMessageDto, JoinRoomDto } from './dto';
+import { CreateMessageDto } from './dto';
 import { Socket } from 'socket.io';
+import { wsAuthGuard } from 'src/common';
 
 const EVENTS = {
   JOIN_ROOM: 'join_room',
   SEND_MESSAGE: 'send_message',
   SELF_MESSAGE: 'self_message',
   RECEIVE_MESSAGE: 'receive_message',
+  TYPING_MESSAGE: 'typing_message',
 };
+const hosts = process.env.HOSTS_URI as string;
+const allowHosts = hosts?.split(' ');
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({ cors: { origin: allowHosts, credentials: true } })
 export class MessageGateway {
   constructor(private readonly messageService: MessageService) {}
 
@@ -26,9 +30,10 @@ export class MessageGateway {
   @SubscribeMessage(EVENTS.JOIN_ROOM)
   async joinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: JoinRoomDto,
+    @MessageBody() data: string,
   ) {
-    const roomId = this.getRoomId(data.receiver, data.sender);
+    const userId = await wsAuthGuard(client);
+    const roomId = this.getRoomId(data, userId!);
     await client.join(roomId);
     return { status: 'joined', roomId };
   }
@@ -49,5 +54,22 @@ export class MessageGateway {
     client.to(roomId).emit(EVENTS.RECEIVE_MESSAGE, message);
 
     return message;
+  }
+
+  @SubscribeMessage(EVENTS.TYPING_MESSAGE)
+  typingMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      receiver: string;
+      sender: string;
+      typing: boolean;
+    },
+  ) {
+    const roomId = this.getRoomId(data.receiver, data.sender);
+    if (!client.rooms.has(roomId)) {
+      return { error: 'Not in room' };
+    }
+    client.to(roomId).emit(EVENTS.TYPING_MESSAGE, data);
   }
 }

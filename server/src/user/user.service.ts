@@ -47,11 +47,31 @@ export class UserService {
     const user = await this.userModel
       .findById(userId)
       .lean()
-      .select('_id name');
+      .select('_id name isOnline lastSeen');
 
     if (user) {
       return user;
     }
     throw new NotFoundException('User not found.');
+  }
+
+  async setOnline(userId: string): Promise<User> {
+    this.isValidMongoID(userId);
+    const user = await this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        isOnline: true,
+        lastSeen: new Date(),
+      },
+      { new: true },
+    );
+
+    if (user) {
+      return user;
+    }
+
+    throw new UnauthorizedException(
+      'You are not authorized to access this resource.',
+    );
   }
 }

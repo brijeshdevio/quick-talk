@@ -13,6 +13,12 @@ export class User {
 
   @Prop({ type: String, required: true })
   password: string;
+
+  @Prop({ type: Boolean, default: false })
+  isOnline: boolean;
+
+  @Prop({ type: Date, default: null })
+  lastSeen: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
