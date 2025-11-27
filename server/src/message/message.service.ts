@@ -27,14 +27,4 @@ export class MessageService {
     });
     return message;
   }
-
-  async getMessages(chat: string): Promise<Message[]> {
-    this.isValidMongoID(chat);
-    const messages = await this.messageModel
-      .find({ chat })
-      .lean()
-      .select('-__v -updatedAt -chat')
-      .limit(20);
-    return messages;
-  }
 }

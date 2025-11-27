@@ -6,11 +6,13 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, Types } from 'mongoose';
 import { Chat } from 'src/schema/chat.schema';
+import { Message } from 'src/schema/message.schema';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
+    @InjectModel(Message.name) private readonly messageModel: Model<Message>,
   ) {}
 
   private isValidMongoID(_id: string): boolean {
@@ -52,6 +54,16 @@ export class ChatService {
         members: undefined,
       };
     });
+  }
+
+  async getMessages(chat: string): Promise<Message[]> {
+    this.isValidMongoID(chat);
+    const messages = await this.messageModel
+      .find({ chat })
+      .lean()
+      .select('-__v -updatedAt -chat')
+      .limit(20);
+    return messages;
   }
 
   async updateLastMessage(chatId: string, messageId: string): Promise<Chat> {

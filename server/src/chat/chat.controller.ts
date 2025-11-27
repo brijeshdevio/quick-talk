@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   Res,
@@ -36,5 +37,14 @@ export class ChatController {
     const userId = req.user.sub;
     const chats = await this.chatService.getChats(userId);
     return res.json({ chats });
+  }
+
+  @Get(':chatId/messages')
+  async handleGetMessages(
+    @Param('chatId') chatId: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const messages = await this.chatService.getMessages(chatId);
+    return res.json({ messages });
   }
 }

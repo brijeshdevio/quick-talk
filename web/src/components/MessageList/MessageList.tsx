@@ -29,7 +29,7 @@ function SenderMessage({ content, createdAt }: MessageProps) {
 }
 
 export function MessageList() {
-  const { channelId } = useParams();
+  const { chatId } = useParams();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const { messagesMutate } = useMessage();
   const { user } = useAuth();
@@ -52,8 +52,8 @@ export function MessageList() {
   });
 
   useEffect(() => {
-    if (channelId) messagesMutate.mutate(channelId);
-  }, [channelId]);
+    if (chatId) messagesMutate.mutate(chatId);
+  }, [chatId]);
 
   useEffect(() => {
     if (messagesMutate.data) {
