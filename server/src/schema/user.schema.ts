@@ -17,7 +17,7 @@ export class User {
   @Prop({ type: Boolean, default: false })
   isOnline: boolean;
 
-  @Prop({ type: Date, default: null })
+  @Prop({ type: Date, default: Date.now })
   lastSeen: Date;
 }
 
