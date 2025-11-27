@@ -3,6 +3,8 @@ import type { ChatItemProps } from "@/types";
 import { Link, NavLink } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 import { Plus, Search } from "lucide-react";
+import { socket } from "@/lib/socket";
+import { toast } from "sonner";
 
 function Profile() {
   return (
@@ -35,11 +37,13 @@ function ChatItem({
   lastMessage,
   lastSeen,
   isOnline,
-}: ChatItemProps) {
+  onClick = () => {},
+}: ChatItemProps & { onClick: (id: string) => void }) {
   return (
     <NavLink
       to={`/c/${_id}`}
       className={() => `hover:bg-primary/50 bg-blue-100`}
+      onClick={() => onClick(_id)}
     >
       <div className="group flex gap-3 px-3 py-2 cursor-pointer">
         <div
@@ -74,13 +78,20 @@ function ChatItem({
 export function ChatList() {
   const { getUsersQuery } = useUser();
 
+  const handleClick = (id: string) => {
+    if (id)
+      socket.emit("join_room", id, ({ status }: { status: string }) =>
+        toast.success(status)
+      );
+  };
+
   return (
     <aside className="min-w-80 h-screen bg-base-100  border-r border-white/5">
       <Profile />
       <SearchBar />
       <div className="h-[calc(100vh-50px-57px)] overflow-y-scroll">
         {getUsersQuery.data?.users?.map((chat: ChatItemProps) => (
-          <ChatItem key={chat._id} {...chat} />
+          <ChatItem onClick={handleClick} key={chat._id} {...chat} />
         ))}
       </div>
     </aside>

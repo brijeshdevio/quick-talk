@@ -34,6 +34,7 @@ export function MessageList() {
   const { messagesMutate } = useMessage();
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const typingRef = useRef<boolean>(false);
 
   // Receive message
   useSocket("receive_message", (data: MessageProps) => {
@@ -41,6 +42,11 @@ export function MessageList() {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
+  });
+
+  // Receive typing
+  useSocket("typing_message", (data: { typing: boolean }) => {
+    typingRef.current = data.typing;
   });
 
   // Receive self messages
@@ -76,6 +82,10 @@ export function MessageList() {
           )}
         </Fragment>
       ))}
+
+      {typingRef.current && (
+        <span className="loading loading-dots loading-sm"></span>
+      )}
       <div ref={scrollRef} className="mt-20"></div>
     </div>
   );

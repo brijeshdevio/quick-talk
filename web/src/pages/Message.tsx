@@ -1,6 +1,6 @@
 import { SendHorizontal } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { useEffect, type FormEvent } from "react";
+import { useEffect, useRef, type FormEvent } from "react";
 import { MessageList } from "@/components";
 import { useUser } from "@/hooks/useUser";
 import { useAuth } from "@/auth";
@@ -12,6 +12,7 @@ export function Message() {
   const {
     getUserMutate: { mutate, data },
   } = useUser();
+  const typingRef = useRef<boolean>(false);
 
   /** ───────────────────────────
    *  Send message
@@ -50,13 +51,30 @@ export function Message() {
   useEffect(() => {
     if (!user?._id || !channelId) return;
 
-    socket.emit("join_room", {
-      sender: user._id,
-      receiver: channelId,
-    });
-
     mutate(channelId);
   }, [channelId, user?._id]);
+
+  /** ───────────────────────────
+   *  Typing event
+   * ───────────────────────────*/
+  const handleTyping = () => {
+    if (!typingRef.current) {
+      typingRef.current = true;
+      socket.emit("typing_message", {
+        typing: true,
+        sender: user?._id,
+        receiver: channelId,
+      });
+      setTimeout(() => {
+        socket.emit("typing_message", {
+          typing: false,
+          sender: user?._id,
+          receiver: channelId,
+        });
+        typingRef.current = false;
+      }, 1000);
+    }
+  };
 
   return (
     <>
@@ -96,6 +114,7 @@ export function Message() {
               placeholder="Type a message..."
               name="message"
               required
+              onChange={handleTyping}
             />
           </label>
           <button className="btn btn-primary">
