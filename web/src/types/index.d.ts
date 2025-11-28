@@ -41,6 +41,10 @@ export interface ContactType {
   email: string;
 }
 
+export interface CreateChatType {
+  member: string;
+}
+
 export interface LocalStoreType {
   isContactModal: boolean;
   setIsContactModal: (value: boolean) => void;

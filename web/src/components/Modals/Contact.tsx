@@ -1,9 +1,19 @@
-import { contacts } from "@/data";
+import { useChat } from "@/hooks/useChat";
 import { useLocalStore } from "@/hooks/useLocalStore";
+import { useUser } from "@/hooks/useUser";
 import type { ContactType } from "@/types";
 import { Search, X } from "lucide-react";
 
-function ContactItem({ email, name }: ContactType) {
+function ContactItem({ _id, email, name }: ContactType) {
+  const { createChatMutate } = useChat();
+  const { setIsContactModal } = useLocalStore();
+
+  const handleCreateChat = async () => {
+    await createChatMutate.mutateAsync({ member: _id }).then(() => {
+      setIsContactModal(false);
+    });
+  };
+
   return (
     <div className="flex items-center gap-2 bg-base-200 p-2 hover:bg-base-300 border-b border-white/5">
       <div>
@@ -18,14 +28,18 @@ function ContactItem({ email, name }: ContactType) {
         <p className="text-sm opacity-70">{email}</p>
       </div>
       <div className="ml-auto">
-        <button className="btn btn-primary btn-sm">Select</button>
+        <button className="btn btn-primary btn-sm" onClick={handleCreateChat}>
+          Select
+        </button>
       </div>
     </div>
   );
 }
 
 export function ContactModal() {
+  const { getUsersQuery } = useUser();
   const { isContactModal, setIsContactModal } = useLocalStore();
+
   if (!isContactModal) return null;
 
   const handleCloseModal = () => setIsContactModal(false);
@@ -50,7 +64,7 @@ export function ContactModal() {
             </label>
           </div>
           <div className="mt-2 max-h-[400px] overflow-y-scroll">
-            {contacts?.map((contact) => (
+            {getUsersQuery?.data?.users?.map((contact: ContactType) => (
               <ContactItem key={contact._id} {...contact} />
             ))}
           </div>
