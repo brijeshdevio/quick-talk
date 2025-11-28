@@ -1,4 +1,5 @@
 import { contacts } from "@/data";
+import { useLocalStore } from "@/hooks/useLocalStore";
 import type { ContactType } from "@/types";
 import { Search, X } from "lucide-react";
 
@@ -24,13 +25,21 @@ function ContactItem({ email, name }: ContactType) {
 }
 
 export function ContactModal() {
+  const { isContactModal, setIsContactModal } = useLocalStore();
+  if (!isContactModal) return null;
+
+  const handleCloseModal = () => setIsContactModal(false);
+
   return (
     <div className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-base-300/80 p-3">
       <div className="card w-full max-w-[400px] bg-base-100 border border-white/5">
         <div className="card-body">
           <div className="flex items-center justify-between">
             <h2 className="card-title">Select Contact</h2>
-            <button className="btn btn-sm btn-ghost btn-circle">
+            <button
+              className="btn btn-sm btn-ghost btn-circle"
+              onClick={handleCloseModal}
+            >
               <X size={20} />
             </button>
           </div>

@@ -40,3 +40,8 @@ export interface ContactType {
   name: string;
   email: string;
 }
+
+export interface LocalStoreType {
+  isContactModal: boolean;
+  setIsContactModal: (value: boolean) => void;
+}

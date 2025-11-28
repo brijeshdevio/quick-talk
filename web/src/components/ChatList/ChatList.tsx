@@ -5,14 +5,22 @@ import { useUser } from "@/hooks/useUser";
 import { Plus, Search } from "lucide-react";
 import { socket } from "@/lib/socket";
 import { toast } from "sonner";
+import { useLocalStore } from "@/hooks/useLocalStore";
 
 function Profile() {
+  const { setIsContactModal } = useLocalStore();
+
+  const handleOpenContactModal = () => setIsContactModal(true);
+
   return (
     <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5">
       <Link to="/" className="">
         <span className="logo text-2xl ml-2 text-primary">QuickTalk</span>
       </Link>
-      <button className="ml-auto btn btn-sm btn-circle btn-ghost">
+      <button
+        className="ml-auto btn btn-sm btn-circle btn-ghost"
+        onClick={handleOpenContactModal}
+      >
         <Plus size={20} />
       </button>
     </div>
