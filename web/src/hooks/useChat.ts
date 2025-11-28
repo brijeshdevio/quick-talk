@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { createChat } from "@/api/chat.api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createChat, getChats } from "@/api/chat.api";
 import type { CreateChatType } from "@/types";
 import { errorHandler } from "./utils";
 
@@ -10,5 +10,10 @@ export function useChat() {
     onError: errorHandler,
   });
 
-  return { createChatMutate };
+  const getChatsQuery = useQuery({
+    queryKey: ["chats"],
+    queryFn: async () => await getChats(),
+  });
+
+  return { createChatMutate, getChatsQuery };
 }

@@ -20,11 +20,17 @@ export type LoginType = Omit<RegisterType, "name">;
 
 export interface ChatItemProps {
   _id: string;
-  name: string;
-  profileImage: string;
-  lastMessage: string;
-  lastSeen: string;
-  isOnline: boolean;
+  member: {
+    _id: string;
+    name: string;
+    isOnline: boolean;
+    lastSeen: string;
+    avatar?: string;
+  };
+  lastMessage: {
+    _id: string;
+    message: string;
+  };
 }
 
 export interface MessageProps {
@@ -48,4 +54,6 @@ export interface CreateChatType {
 export interface LocalStoreType {
   isContactModal: boolean;
   setIsContactModal: (value: boolean) => void;
+  chat: ChatItemProps;
+  setChat: (value: ChatItemProps) => void;
 }

@@ -5,9 +5,10 @@ import { MessageList } from "@/components";
 import { useUser } from "@/hooks/useUser";
 import { useAuth } from "@/auth";
 import { socket } from "@/lib/socket";
+import { formateTime } from "@/utils";
 
 export function Message() {
-  const { channelId } = useParams();
+  const { memberId } = useParams();
   const { user } = useAuth();
   const {
     getUserMutate: { mutate, data },
@@ -23,12 +24,12 @@ export function Message() {
     const formData = new FormData(form);
     const message = formData.get("message");
 
-    if (!user?._id || !channelId || !message) return;
+    if (!user?._id || !memberId || !message) return;
 
     socket.emit("send_message", {
       message,
       sender: user._id,
-      receiver: channelId,
+      receiver: memberId,
     });
 
     form.reset();
@@ -49,10 +50,10 @@ export function Message() {
    *  Join room whenever channel changes
    * ───────────────────────────*/
   useEffect(() => {
-    if (!user?._id || !channelId) return;
+    if (!user?._id || !memberId) return;
 
-    mutate(channelId);
-  }, [channelId, user?._id]);
+    mutate(memberId);
+  }, [memberId, user?._id]);
 
   /** ───────────────────────────
    *  Typing event
@@ -63,13 +64,13 @@ export function Message() {
       socket.emit("typing_message", {
         typing: true,
         sender: user?._id,
-        receiver: channelId,
+        receiver: memberId,
       });
       setTimeout(() => {
         socket.emit("typing_message", {
           typing: false,
           sender: user?._id,
-          receiver: channelId,
+          receiver: memberId,
         });
         typingRef.current = false;
       }, 1000);
@@ -81,10 +82,14 @@ export function Message() {
       {/* HEADER */}
       <section className="w-full px-5 py-1 bg-base-100 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="avatar avatar-online avatar-placeholder">
+          <div
+            className={`avatar avatar-placeholder ${
+              data?.user?.isOnline && "avatar-online"
+            }`}
+          >
             <div className="bg-neutral text-neutral-content w-10 rounded-full">
-              {data?.user?.image ? (
-                <img src={data.user.image} alt={data?.user?.name} />
+              {data?.user?.avatar ? (
+                <img src={data.user.avatar} alt={data?.user?.name} />
               ) : (
                 <span>{data?.user?.name?.[0]}</span>
               )}
@@ -92,7 +97,15 @@ export function Message() {
           </div>
           <div>
             <h3>{data?.user?.name}</h3>
-            <p className="text-xs text-primary">Online</p>
+            <p
+              className={`text-xs ${
+                data?.user?.isOnline ? "text-primary" : ""
+              }`}
+            >
+              {data?.user?.isOnline
+                ? "Online"
+                : formateTime(data?.user?.lastSeen)}
+            </p>
           </div>
         </div>
       </section>

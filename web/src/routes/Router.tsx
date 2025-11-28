@@ -27,7 +27,7 @@ export function Router() {
           <Route element={<ProtectedRoute />}>
             <Route element={<ChatLayout />}>
               <Route path="/c" element={<Chat />} />
-              <Route path="/c/:channelId" element={<Message />} />
+              <Route path="/c/:chatId/:memberId" element={<Message />} />
             </Route>
           </Route>
         </Routes>
