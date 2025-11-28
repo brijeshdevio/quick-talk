@@ -51,7 +51,7 @@ export function ContactModal() {
           </div>
           <div className="mt-2 max-h-[400px] overflow-y-scroll">
             {contacts?.map((contact) => (
-              <ContactItem {...contact} />
+              <ContactItem key={contact._id} {...contact} />
             ))}
           </div>
         </div>
