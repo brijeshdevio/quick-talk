@@ -57,4 +57,14 @@ export class MessageGateway {
     client.to(chatID).emit(EVENTS.RECEIVE_MESSAGE, message);
     return message;
   }
+
+  // Typing Message
+  @SubscribeMessage(EVENTS.TYPING_MESSAGE)
+  async typingMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() { chatId, isActive }: { chatId: string; isActive: boolean },
+  ) {
+    const sender = (await wsAuthGuard(client)) as string;
+    client.to(chatId).emit(EVENTS.TYPING_MESSAGE, { sender, isActive });
+  }
 }

@@ -30,7 +30,10 @@ export function Message() {
       content: message,
       chatID: chatId,
     });
-
+    socket.emit("typing_message", {
+      isActive: false,
+      chatId,
+    });
     form.reset();
   };
 
@@ -61,18 +64,16 @@ export function Message() {
     if (!typingRef.current) {
       typingRef.current = true;
       socket.emit("typing_message", {
-        typing: true,
-        sender: user?._id,
-        receiver: memberId,
+        isActive: true,
+        chatId,
       });
       setTimeout(() => {
         socket.emit("typing_message", {
-          typing: false,
-          sender: user?._id,
-          receiver: memberId,
+          isActive: false,
+          chatId,
         });
         typingRef.current = false;
-      }, 1000);
+      }, 3000);
     }
   };
 

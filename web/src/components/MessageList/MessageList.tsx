@@ -29,11 +29,15 @@ function SenderMessage({ content, createdAt }: MessageProps) {
 }
 
 export function MessageList() {
-  const { chatId } = useParams();
+  const { channelId } = useParams();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const { messagesMutate } = useMessage();
-  const { user } = useAuth();
+  const [typing, setTyping] = useState({
+    isActive: false,
+    sender: "",
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
+  useSocket("typing_message", setTyping);
 
   // Receive message
   useSocket("receive_message", (data: MessageProps) => {
@@ -77,6 +81,11 @@ export function MessageList() {
         </Fragment>
       ))}
 
+      {typing.isActive && user?._id != typing.sender && (
+        <div className="pl-5">
+          <div className="loading loading-dots"></div>
+        </div>
+      )}
       <div ref={scrollRef} className="mt-20"></div>
     </div>
   );
