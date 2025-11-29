@@ -29,7 +29,8 @@ function SenderMessage({ content, createdAt }: MessageProps) {
 }
 
 export function MessageList() {
-  const { channelId } = useParams();
+  const { chatId } = useParams();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const { messagesMutate } = useMessage();
   const [typing, setTyping] = useState({
