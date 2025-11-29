@@ -6,10 +6,10 @@ import { useAuth } from "@/auth";
 import { useMessage } from "@/hooks/useMessage";
 import { useParams } from "react-router-dom";
 
-function ReceiverMessage({ message, createdAt }: MessageProps) {
+function ReceiverMessage({ content, createdAt }: MessageProps) {
   return (
     <div className="chat chat-start">
-      <div className="chat-bubble bg-base-100">{message}</div>
+      <div className="chat-bubble bg-base-100">{content}</div>
       <div className="chat-footer opacity-50 mt-1 text-xs">
         Sent at {formateTime(createdAt, { mode: "time" })}
       </div>
@@ -17,10 +17,10 @@ function ReceiverMessage({ message, createdAt }: MessageProps) {
   );
 }
 
-function SenderMessage({ message, createdAt }: MessageProps) {
+function SenderMessage({ content, createdAt }: MessageProps) {
   return (
     <div className="chat chat-end">
-      <div className="chat-bubble bg-primary/50 text-white">{message}</div>
+      <div className="chat-bubble bg-primary/50 text-white">{content}</div>
       <div className="chat-footer opacity-50 mt-1 text-xs">
         Sent at {formateTime(createdAt, { mode: "time" })}
       </div>
@@ -34,7 +34,6 @@ export function MessageList() {
   const { messagesMutate } = useMessage();
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const typingRef = useRef<boolean>(false);
 
   // Receive message
   useSocket("receive_message", (data: MessageProps) => {
@@ -42,11 +41,6 @@ export function MessageList() {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  });
-
-  // Receive typing
-  useSocket("typing_message", (data: { typing: boolean }) => {
-    typingRef.current = data.typing;
   });
 
   // Receive self messages
@@ -83,9 +77,6 @@ export function MessageList() {
         </Fragment>
       ))}
 
-      {typingRef.current && (
-        <span className="loading loading-dots loading-sm"></span>
-      )}
       <div ref={scrollRef} className="mt-20"></div>
     </div>
   );

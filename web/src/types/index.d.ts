@@ -36,9 +36,8 @@ export interface ChatItemProps {
 export interface MessageProps {
   _id: string;
   createdAt: string;
-  message: string;
+  content: string;
   sender: string;
-  receiver: string;
 }
 
 export interface ContactType {

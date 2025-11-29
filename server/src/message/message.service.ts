@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Message } from 'src/schema/message.schema';
 import { isValidObjectId, Model } from 'mongoose';
-import { CreateMessageDto } from './dto';
 
 @Injectable()
 export class MessageService {
@@ -15,22 +14,27 @@ export class MessageService {
     throw new BadRequestException(`Invalid ID: ${_id}`);
   }
 
-  async createMessage(data: CreateMessageDto) {
-    this.isValidMongoID(data.receiver);
-    this.isValidMongoID(data.sender);
-    return this.messageModel.create(data);
+  async createMessage(
+    sender: string,
+    chat: string,
+    content: string,
+  ): Promise<Message> {
+    this.isValidMongoID(chat);
+    const message = await this.messageModel.create({
+      sender,
+      chat,
+      content,
+    });
+    return message;
   }
 
-  async getMessages(sender: string, receiver: string) {
-    this.isValidMongoID(receiver);
-    return this.messageModel
-      .find({
-        $or: [
-          { sender: sender, receiver: receiver },
-          { sender: receiver, receiver: sender },
-        ],
-      })
+  async getMessages(chat: string): Promise<Message[]> {
+    this.isValidMongoID(chat);
+    const messages = await this.messageModel
+      .find({ chat })
       .lean()
-      .select('-__v');
+      .select('-__v -updatedAt -chat')
+      .limit(20);
+    return messages;
   }
 }

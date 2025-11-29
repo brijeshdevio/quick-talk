@@ -53,4 +53,18 @@ export class ChatService {
       };
     });
   }
+
+  async updateLastMessage(chatId: string, messageId: string): Promise<Chat> {
+    this.isValidMongoID(chatId);
+    this.isValidMongoID(messageId);
+    const chat = await this.chatModel.findByIdAndUpdate(chatId, {
+      lastMessage: messageId,
+    });
+
+    if (chat) {
+      return chat;
+    }
+
+    throw new BadRequestException('Chat not found.');
+  }
 }

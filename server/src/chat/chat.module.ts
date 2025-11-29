@@ -8,6 +8,7 @@ import { Chat, ChatSchema } from 'src/schema/chat.schema';
   imports: [
     MongooseModule.forFeature([{ name: Chat.name, schema: ChatSchema }]),
   ],
+  exports: [ChatService],
   controllers: [ChatController],
   providers: [ChatService],
 })

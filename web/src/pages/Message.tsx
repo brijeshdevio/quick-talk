@@ -8,7 +8,7 @@ import { socket } from "@/lib/socket";
 import { formateTime } from "@/utils";
 
 export function Message() {
-  const { memberId } = useParams();
+  const { chatId, memberId } = useParams();
   const { user } = useAuth();
   const {
     getUserMutate: { mutate, data },
@@ -27,9 +27,8 @@ export function Message() {
     if (!user?._id || !memberId || !message) return;
 
     socket.emit("send_message", {
-      message,
-      sender: user._id,
-      receiver: memberId,
+      content: message,
+      chatID: chatId,
     });
 
     form.reset();

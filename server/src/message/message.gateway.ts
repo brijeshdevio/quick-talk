@@ -8,6 +8,7 @@ import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto';
 import { Socket } from 'socket.io';
 import { wsAuthGuard } from 'src/common';
+import { ChatService } from 'src/chat/chat.service';
 
 const EVENTS = {
   JOIN_ROOM: 'join_room',
@@ -21,55 +22,39 @@ const allowHosts = hosts?.split(' ');
 
 @WebSocketGateway({ cors: { origin: allowHosts, credentials: true } })
 export class MessageGateway {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly chatService: ChatService,
+  ) {}
 
-  private getRoomId(id1: string, id2: string) {
-    return [id1, id2].sort().join('_');
-  }
-
+  // Join Room
   @SubscribeMessage(EVENTS.JOIN_ROOM)
   async joinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: string,
+    @MessageBody() chatID: string,
   ) {
-    const userId = await wsAuthGuard(client);
-    const roomId = this.getRoomId(data, userId!);
-    await client.join(roomId);
-    return { status: 'joined', roomId };
+    await client.join(chatID);
+    return { status: 'joined', chatID };
   }
 
+  // Send Message
   @SubscribeMessage(EVENTS.SEND_MESSAGE)
   async sendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: CreateMessageDto,
+    @MessageBody() { chatID, content }: CreateMessageDto,
   ) {
-    const roomId = this.getRoomId(data.receiver, data.sender);
+    const sender = (await wsAuthGuard(client)) as string;
 
-    if (!client.rooms.has(roomId)) {
-      return { error: 'Not in room' };
-    }
+    const message = (await this.messageService.createMessage(
+      sender,
+      chatID,
+      content,
+    )) as unknown as { _id: string };
 
-    const message = await this.messageService.createMessage(data);
+    await this.chatService.updateLastMessage(chatID, String(message._id));
+
     client.emit(EVENTS.SELF_MESSAGE, message);
-    client.to(roomId).emit(EVENTS.RECEIVE_MESSAGE, message);
-
+    client.to(chatID).emit(EVENTS.RECEIVE_MESSAGE, message);
     return message;
-  }
-
-  @SubscribeMessage(EVENTS.TYPING_MESSAGE)
-  typingMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody()
-    data: {
-      receiver: string;
-      sender: string;
-      typing: boolean;
-    },
-  ) {
-    const roomId = this.getRoomId(data.receiver, data.sender);
-    if (!client.rooms.has(roomId)) {
-      return { error: 'Not in room' };
-    }
-    client.to(roomId).emit(EVENTS.TYPING_MESSAGE, data);
   }
 }
