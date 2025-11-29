@@ -43,7 +43,7 @@ export class ChatService {
       .lean()
       .select('-__v -isGroup -groupName -createdAt')
       .populate('members', 'name isOnline lastSeen')
-      .populate('lastMessage', 'message');
+      .populate('lastMessage', 'content');
 
     return chats?.map((chat) => {
       return {

@@ -79,7 +79,7 @@ function ChatItem({
             )}
           </div>
           <p className="text-sm opacity-70 line-clamp-1">
-            {lastMessage?.message}
+            {lastMessage?.content}
           </p>
         </div>
       </div>

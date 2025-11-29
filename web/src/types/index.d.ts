@@ -29,7 +29,7 @@ export interface ChatItemProps {
   };
   lastMessage: {
     _id: string;
-    message: string;
+    content: string;
   };
 }
 
