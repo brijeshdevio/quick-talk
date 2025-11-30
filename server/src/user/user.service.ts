@@ -55,12 +55,12 @@ export class UserService {
     throw new NotFoundException('User not found.');
   }
 
-  async setOnline(userId: string): Promise<User> {
+  async setStatus(userId: string, isOnline: boolean = false): Promise<User> {
     this.isValidMongoID(userId);
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       {
-        isOnline: true,
+        isOnline: isOnline,
         lastSeen: new Date(),
       },
       { new: true },

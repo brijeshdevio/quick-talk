@@ -1,4 +1,4 @@
-import { axiosClient } from "./axiosClient";
+import { axiosClient } from "@/services/axiosClient";
 import type { LoginType, RegisterType } from "@/types";
 
 export const register = async (data: RegisterType) =>

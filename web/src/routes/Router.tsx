@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Chat, Home, Login, Message, Register } from "@/pages";
-import { AuthLayout, BaseLayout, ChatLayout } from "@/layouts";
+import { AuthProvider } from "@/auth/AuthProvider";
+import { ProtectedRoute } from "./ProtectedRoute";
 import { RestrictedRoute } from "./RestrictedRoute";
-import ProtectedRoute from "./ProtectedRoute";
-import { AuthProvider } from "@/auth";
+import { AuthLayout, BaseLayout, ChatLayout } from "@/layouts";
+import { Chat, Home, Login, Message, Register } from "@/pages";
 
 export function Router() {
   return (
@@ -27,7 +27,7 @@ export function Router() {
           <Route element={<ProtectedRoute />}>
             <Route element={<ChatLayout />}>
               <Route path="/c" element={<Chat />} />
-              <Route path="/c/:chatId/:memberId" element={<Message />} />
+              <Route path="/c/:chatID/:memberID" element={<Message />} />
             </Route>
           </Route>
         </Routes>

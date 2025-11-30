@@ -62,7 +62,7 @@ export class ChatService {
       .find({ chat })
       .lean()
       .select('-__v -updatedAt -chat')
-      .limit(20);
+      .limit(100);
     return messages;
   }
 

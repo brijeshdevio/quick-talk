@@ -23,7 +23,7 @@ export const features = [
 
 export const userProfile = {
   name: "Alex Doe",
-  image: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+  image: "https://i.pravatar.cc/150?u=user_90",
   email: "alex.doe@example.com",
 };
 
@@ -116,28 +116,28 @@ export const messages = [
     senderId: "1",
     receiverId: "2",
     message: "Hey! Are you available right now?",
-    createdAt: "2025-11-23T09:10:00Z",
+    createdAt: "2025-10-23T09:10:00Z",
   },
   {
     _id: "m2",
     senderId: "2",
     receiverId: "1",
     message: "Yes, what's up?",
-    createdAt: "2025-11-23T09:11:12Z",
+    createdAt: "2025-11-01T09:11:12Z",
   },
   {
     _id: "m3",
     senderId: "1",
     receiverId: "2",
     message: "I wanted to discuss the project update.",
-    createdAt: "2025-11-23T09:12:30Z",
+    createdAt: "2025-11-05T09:12:30Z",
   },
   {
     _id: "m4",
     senderId: "2",
     receiverId: "1",
     message: "Sure, I can talk now.",
-    createdAt: "2025-11-23T09:13:00Z",
+    createdAt: "2025-11-20T09:13:00Z",
   },
   {
     _id: "m5",
@@ -158,14 +158,14 @@ export const messages = [
     senderId: "1",
     receiverId: "2",
     message: "Okay, I'm here.",
-    createdAt: "2025-11-23T09:17:40Z",
+    createdAt: "2025-11-25T09:17:40Z",
   },
   {
     _id: "m8",
     senderId: "2",
     receiverId: "1",
     message: "Perfect, let's start.",
-    createdAt: "2025-11-23T09:18:00Z",
+    createdAt: "2025-11-29T09:18:00Z",
   },
 ];
 
