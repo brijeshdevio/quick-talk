@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PublicLayout } from "../layouts/PublicLayout";
-import { LandingPage, LoginPage, SignupPage } from "@/pages";
+import { ChatLayout } from "../layouts/ChatLayout";
+import { ChatPage, LandingPage, LoginPage, SignupPage } from "@/pages";
 
 export function AppRoute() {
   return (
@@ -11,6 +12,10 @@ export function AppRoute() {
         </Route>
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+
+        <Route element={<ChatLayout />}>
+          <Route path="/c" element={<ChatPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
