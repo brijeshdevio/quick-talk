@@ -1,7 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PublicLayout } from "../layouts/PublicLayout";
 import { ChatLayout } from "../layouts/ChatLayout";
-import { ChatPage, LandingPage, LoginPage, SignupPage } from "@/pages";
+import {
+  ChatPage,
+  LandingPage,
+  LoginPage,
+  MessagePage,
+  SignupPage,
+} from "@/pages";
 
 export function AppRoute() {
   return (
@@ -15,6 +21,7 @@ export function AppRoute() {
 
         <Route element={<ChatLayout />}>
           <Route path="/c" element={<ChatPage />} />
+          <Route path="/c/:conversationId" element={<MessagePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
