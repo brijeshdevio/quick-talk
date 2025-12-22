@@ -103,3 +103,86 @@ export const messages = [
     createdAt: "2025-11-23T09:18:00Z",
   },
 ];
+
+export const chats = [
+  {
+    _id: "1",
+    member: [
+      {
+        _id: "1",
+        name: "Alice Johnson",
+        avatar: "https://i.pravatar.cc/150?u=user_1",
+        isOnline: true,
+        lastSeen: "2025-11-22T14:35:00Z",
+      },
+    ],
+    lastMessage: {
+      _id: "m1",
+      content: "Hi! How's it going?",
+    },
+  },
+  {
+    _id: "2",
+    member: [
+      {
+        _id: "2",
+        name: "Michael Brown",
+        avatar: "https://i.pravatar.cc/150?u=user_2",
+        isOnline: false,
+        lastSeen: "2025-11-22T13:10:45Z",
+      },
+    ],
+    lastMessage: {
+      _id: "m2",
+      content: "Did you finish the task?",
+    },
+  },
+  {
+    _id: "3",
+    member: [
+      {
+        _id: "3",
+        name: "Sophia Lee",
+        avatar: "https://i.pravatar.cc/150?u=user_3",
+        isOnline: true,
+        lastSeen: "2025-11-22T12:02:30Z",
+      },
+    ],
+    lastMessage: {
+      _id: "m3",
+      content: "Let's catch up later today.",
+    },
+  },
+  {
+    _id: "4",
+    member: [
+      {
+        _id: "4",
+        name: "Daniel Martinez",
+        avatar: "https://i.pravatar.cc/150?u=user_4",
+        isOnline: false,
+        lastSeen: "2025-11-21T20:45:10Z",
+      },
+    ],
+    lastMessage: {
+      _id: "m4",
+      content: "Thanks for your help!",
+    },
+  },
+  {
+    _id: "5",
+    member: [
+      {
+        _id: "5",
+        name: "Emily Davis",
+        avatar: "https://i.pravatar.cc/150?u=user_5",
+        isOnline: true,
+        lastSeen: "2025-11-21T18:15:55Z",
+      },
+    ],
+    lastMessage: {
+      _id: "m5",
+      content: "Are we still on for tomorrow?",
+    },
+  },
+];
