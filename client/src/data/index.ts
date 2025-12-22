@@ -186,3 +186,56 @@ export const chats = [
     },
   },
 ];
+
+export const contacts = [
+  {
+    _id: "u1f92a7c",
+    name: "Liam Carter",
+    avatar: "https://i.pravatar.cc/150?u=user_5",
+  },
+  {
+    _id: "u2b73e14",
+    name: "Ava Mitchell",
+    avatar: "https://i.pravatar.cc/150?u=user_4",
+  },
+  {
+    _id: "u3d81f5b",
+    name: "Noah Ramirez",
+    avatar: "https://i.pravatar.cc/150?u=user_3",
+  },
+  {
+    _id: "u4c59a83",
+    name: "Sophia Bennett",
+    avatar: "https://i.pravatar.cc/150?u=user_2",
+  },
+  {
+    _id: "u5a17c9d",
+    name: "Ethan Rivera",
+    avatar: "https://i.pravatar.cc/150?u=user_1",
+  },
+  {
+    _id: "u6e42b67",
+    name: "Mia Harrison",
+    avatar: "https://i.pravatar.cc/150?u=user_6",
+  },
+  {
+    _id: "u7c83df1",
+    name: "James Walker",
+    avatar: "https://i.pravatar.cc/150?u=user_7",
+  },
+  {
+    _id: "u8b15a2e",
+    name: "Isabella Brooks",
+    avatar: "https://i.pravatar.cc/150?u=user_8",
+  },
+  {
+    _id: "u9f64b10",
+    name: "Lucas Hayes",
+    avatar: "https://i.pravatar.cc/150?u=user_9",
+  },
+  {
+    _id: "u10d27ec",
+    name: "Charlotte Turner",
+    avatar: "https://i.pravatar.cc/150?u=user_10",
+  },
+];

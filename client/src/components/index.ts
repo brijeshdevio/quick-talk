@@ -3,3 +3,4 @@ export * from "./layouts/Footer";
 export * from "./ui/InputField";
 export * from "./layouts/Sidebar";
 export * from "./message/Message";
+export * from "./modal/ModalHost";

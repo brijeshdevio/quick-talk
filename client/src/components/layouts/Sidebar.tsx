@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { MessageSquareText, Search, Slack } from "lucide-react";
+import {
+  MessageCirclePlus,
+  MessageSquareText,
+  Search,
+  Slack,
+} from "lucide-react";
 import { chats } from "@/data";
 import { formateTime } from "@/utils";
+import { useModal } from "@/hooks/useModal";
 
 type Member = {
   _id: string;
@@ -23,6 +29,8 @@ interface ChatProps {
 }
 
 function SidebarHeader() {
+  const { modal } = useModal();
+
   return (
     <div className="flex items-center gap-2 px-4">
       <div className="p-2 flex items-center justify-center bg-primary/10 rounded-xl">
@@ -31,6 +39,14 @@ function SidebarHeader() {
       <div>
         <h2 className="text-lg font-bold leading-5">QuickTalk</h2>
         <p className="text-xs opacity-70">Workspace</p>
+      </div>
+      <div className="ml-auto">
+        <button
+          className="btn btn-circle btn-ghost"
+          onClick={modal("SearchUser")}
+        >
+          <MessageCirclePlus size={20} />
+        </button>
       </div>
     </div>
   );
@@ -73,7 +89,9 @@ function Chat({ _id, member, lastMessage, onClick = () => {} }: ChatProps) {
       to={`/c/${_id}`}
       onClick={() => onClick(_id)}
       className={({ isActive }) => {
-        return isActive ? "block bg-primary/40" : "block hover:bg-primary/40";
+        return isActive
+          ? "block bg-primary/40 rounded-lg"
+          : "block hover:bg-primary/40 rounded-lg";
       }}
     >
       <div className="flex gap-3 px-3 py-2">
