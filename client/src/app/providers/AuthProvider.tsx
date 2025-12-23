@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadProfile = async function () {
       try {
-        const response = await UserService.getProfile();
+        const response = await UserService.profile();
         if (response?.user) {
           setUser(response.user);
           setIsAuthenticated(true);
