@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Search } from "lucide-react";
 // import { contacts } from "@/data";
 import { useGetUsers } from "@/queries/user.queries";
+import { useCreateChat } from "@/queries/chat.queries";
 
 interface UserItemProps {
   _id: string;
@@ -9,17 +10,29 @@ interface UserItemProps {
   name: string;
 }
 
-function UserItem({ name, avatar }: UserItemProps) {
+function UserItem({ _id, name, avatar }: UserItemProps) {
+  const { mutate, isPending } = useCreateChat();
+
+  const handleClick = () => {
+    mutate({ member: _id });
+  };
+
   return (
-    <li className="flex items-center gap-2 p-2 bg-base-200 rounded-lg border-b border-primary/5 cursor-pointer hover:bg-primary/10">
-      <div className="avatar avatar-placeholder">
-        <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full">
-          {avatar ? <img src={avatar} alt="" /> : <span>{name?.[0]}</span>}
+    <li>
+      <button
+        className="btn w-full justify-start btn-lg"
+        disabled={isPending}
+        onClick={handleClick}
+      >
+        <div className="avatar avatar-placeholder py-2">
+          <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full">
+            {avatar ? <img src={avatar} alt="" /> : <span>{name?.[0]}</span>}
+          </div>
         </div>
-      </div>
-      <div>
-        <h3 className="text-sm">{name}</h3>
-      </div>
+        <div>
+          <h3 className="text-sm">{name}</h3>
+        </div>
+      </button>
     </li>
   );
 }

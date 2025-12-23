@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import {
   MessageCirclePlus,
@@ -6,9 +6,10 @@ import {
   Search,
   Slack,
 } from "lucide-react";
-import { chats } from "@/data";
+// import { chats } from "@/data";
 import { formateTime } from "@/utils";
 import { useModal } from "@/hooks/useModal";
+import { useGetChats } from "@/queries/chat.queries";
 
 type Member = {
   _id: string;
@@ -20,7 +21,7 @@ type Member = {
 
 interface ChatProps {
   _id: string;
-  member: Member[];
+  member: Member;
   lastMessage: {
     _id: string;
     content: string;
@@ -82,8 +83,6 @@ function ConversationEmptyState() {
 }
 
 function Chat({ _id, member, lastMessage, onClick = () => {} }: ChatProps) {
-  const user = member[0];
-
   return (
     <NavLink
       to={`/c/${_id}`}
@@ -97,26 +96,26 @@ function Chat({ _id, member, lastMessage, onClick = () => {} }: ChatProps) {
       <div className="flex gap-3 px-3 py-2">
         <div
           className={`avatar avatar-placeholder ${
-            user?.isOnline && "avatar-online"
+            member?.isOnline && "avatar-online"
           }`}
         >
           <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full ">
-            {user?.avatar ? (
-              <img src={user?.avatar} alt="" />
+            {member?.avatar ? (
+              <img src={member?.avatar} alt="" />
             ) : (
-              <span>{user?.name?.[0]}</span>
+              <span>{member?.name?.[0]}</span>
             )}
           </div>
         </div>
         <div className="w-full">
           <div className="flex items-center justify-between">
-            <h3 className="text-base">{user?.name}</h3>
-            {user?.isOnline ? (
+            <h3 className="text-base">{member?.name}</h3>
+            {member?.isOnline ? (
               <p className="text-xs text-success">Online</p>
             ) : (
               <p className="text-xs">
-                {user?.lastSeen &&
-                  formateTime(user?.lastSeen, { mode: "date" })}
+                {member?.lastSeen &&
+                  formateTime(member?.lastSeen, { mode: "date" })}
               </p>
             )}
           </div>
@@ -129,14 +128,10 @@ function Chat({ _id, member, lastMessage, onClick = () => {} }: ChatProps) {
   );
 }
 
-function ChatList() {
+function ChatList({ chats = [] }: { chats: ChatProps[] }) {
   return (
     <div className="h-full overflow-y-auto">
       <div className="flex flex-col px-2">
-        {chats?.map((chat) => (
-          <Chat key={chat._id} {...chat} />
-        ))}
-
         {chats?.map((chat) => (
           <Chat key={chat._id} {...chat} />
         ))}
@@ -146,13 +141,29 @@ function ChatList() {
 }
 
 export function Sidebar() {
-  const [hasChats] = useState(true);
+  const { data, refetch, isPending } = useGetChats();
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   return (
     <aside className="min-w-80 h-screen flex flex-col gap-4 py-5 border-r border-primary/10 bg-base-100">
       <SidebarHeader />
       <UserSearch />
-      {hasChats ? <ChatList /> : <ConversationEmptyState />}
+      {isPending && (
+        <div className="h-[300px] flex items-center justify-center">
+          <div className="text-center">
+            <span className="loading loading-spinner"></span>
+            <p className="opacity-70 mt-2">Fetching users...</p>
+          </div>
+        </div>
+      )}
+      {!isPending && data?.chats?.length > 0 ? (
+        <ChatList chats={data?.chats} />
+      ) : (
+        <ConversationEmptyState />
+      )}
     </aside>
   );
 }
