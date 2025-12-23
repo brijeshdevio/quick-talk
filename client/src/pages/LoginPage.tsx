@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Slack } from "lucide-react";
 import { InputField } from "@/components";
+import { useLogin } from "@/queries/auth.queries";
+import type { FormEvent } from "react";
+import type { LoginForm } from "@/types";
 
 const formFields = [
   {
@@ -18,6 +21,15 @@ const formFields = [
 ];
 
 export function LoginPage() {
+  const { mutate, isPending } = useLogin();
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    mutate(data as unknown as LoginForm);
+  };
+
   return (
     <main className="w-full h-screen flex items-center justify-center p-3">
       <section className="flex flex-col gap-3 w-[350px]">
@@ -29,13 +41,26 @@ export function LoginPage() {
           <h2 className="text-2xl mb-2">Welcome back!</h2>
           <p className="text-sm">Connect with your team and start chatting.</p>
         </div>
-        <form className="flex flex-col gap-2">
+
+        <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
           {formFields.map((field) => (
-            <InputField key={field.name} {...field} />
+            <InputField key={field.name} {...field} required />
           ))}
-          <button type="submit" className="btn btn-primary">
-            <span>Login</span>
-            <ArrowRight size={20} />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <span className="loading loading-spinner"></span>
+              </>
+            ) : (
+              <>
+                <span>Log In</span>
+                <ArrowRight size={20} />
+              </>
+            )}
           </button>
         </form>
         <div>

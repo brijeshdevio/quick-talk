@@ -1,6 +1,9 @@
+import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Slack } from "lucide-react";
 import { InputField } from "@/components";
+import type { SignupForm } from "@/types";
+import { useSignup } from "@/queries/auth.queries";
 
 const formFields = [
   {
@@ -24,6 +27,15 @@ const formFields = [
 ];
 
 export function SignupPage() {
+  const { mutate, isPending } = useSignup();
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    mutate(data as unknown as SignupForm);
+  };
+
   return (
     <main className="w-full h-screen flex items-center justify-center p-3">
       <section className="flex flex-col gap-3 w-[350px]">
@@ -38,13 +50,25 @@ export function SignupPage() {
             No credit card required.
           </p>
         </div>
-        <form className="flex flex-col gap-2">
+        <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
           {formFields.map((field) => (
-            <InputField key={field.name} {...field} />
+            <InputField key={field.name} {...field} required />
           ))}
-          <button type="submit" className="btn btn-primary">
-            <span>Create Account</span>
-            <ArrowRight size={20} />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <span className="loading loading-spinner"></span>
+              </>
+            ) : (
+              <>
+                <span>Create Account</span>
+                <ArrowRight size={20} />
+              </>
+            )}
           </button>
         </form>
         <div>
