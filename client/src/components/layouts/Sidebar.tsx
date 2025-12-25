@@ -10,6 +10,8 @@ import {
 import { formateTime } from "@/utils";
 import { useModal } from "@/hooks/useModal";
 import { useGetChats } from "@/queries/chat.queries";
+import { WS_LISTENERS } from "@/constants";
+import { socket } from "@/api/socket.service";
 
 type Member = {
   _id: string;
@@ -146,6 +148,23 @@ export function Sidebar() {
   useEffect(() => {
     refetch();
   }, [refetch]);
+
+  useEffect(() => {
+    const handleChats = (memberId: string) => {
+      const user = data.chats?.find((u: ChatProps) => u.member._id == memberId);
+      if (user?.member?._id == memberId) {
+        refetch();
+      }
+    };
+
+    socket.on(WS_LISTENERS.USER_ONLINE, handleChats);
+    socket.on(WS_LISTENERS.USER_OFFLINE, handleChats);
+
+    return () => {
+      socket.off(WS_LISTENERS.USER_ONLINE, handleChats);
+      socket.off(WS_LISTENERS.USER_OFFLINE, handleChats);
+    };
+  });
 
   return (
     <aside className="min-w-80 h-screen flex flex-col gap-4 py-5 border-r border-primary/10 bg-base-100">

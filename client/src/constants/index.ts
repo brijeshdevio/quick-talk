@@ -1,3 +1,16 @@
 export const modals = {
   SearchUser: "search-user",
 };
+
+export const WS_EVENTS = {
+  USER_ONLINE: "USER:ONLINE",
+  ROOM_JOIN: "ROOM:JOIN",
+  MSG_SEND: "MSG:SEND",
+  MSG_TYPING: "MSG:TYPING",
+};
+
+export const WS_LISTENERS = {
+  USER_ONLINE: "USER:ONLINE",
+  USER_OFFLINE: "USER:OFFLINE",
+  MSG_DELIVERED: "MSG:DELIVERED",
+};

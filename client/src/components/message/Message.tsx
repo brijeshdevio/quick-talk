@@ -1,13 +1,19 @@
 import { useParams } from "react-router-dom";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { SendHorizontal } from "lucide-react";
-import { messages } from "@/data";
 import { formateTime } from "@/utils";
 import { useGetUser } from "@/queries/user.queries";
+import { socket } from "@/api/socket.service";
+import { WS_EVENTS, WS_LISTENERS } from "@/constants";
+// import { messages } from "@/data";
+import { useGetMessages } from "@/queries/message.queries";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 interface MessageBubbleProps {
+  _id: string;
+  sender: string;
   content: string;
-  createdAt: string;
+  updatedAt: string;
 }
 
 interface UserProfileProps {
@@ -51,8 +57,30 @@ function MessageHeader() {
   const { mutate, data, isPending } = useGetUser();
 
   useEffect(() => {
-    if (conversationId) mutate(conversationId!);
+    if (conversationId) {
+      mutate(conversationId);
+      socket.emit(WS_EVENTS.ROOM_JOIN, { chatID: conversationId });
+    }
   }, [mutate, conversationId]);
+
+  useEffect(() => {
+    socket.on(WS_LISTENERS.USER_ONLINE, (memberId: string) => {
+      if (conversationId && data?.user?._id == memberId) {
+        mutate(conversationId);
+      }
+    });
+
+    socket.on(WS_LISTENERS.USER_OFFLINE, (memberId) => {
+      if (conversationId && data?.user?._id == memberId) {
+        mutate(conversationId);
+      }
+    });
+
+    return () => {
+      socket.off(WS_LISTENERS.USER_ONLINE);
+      socket.off(WS_LISTENERS.USER_OFFLINE);
+    };
+  }, [mutate, conversationId, data]);
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 bg-base-100 border-b border-primary/10">
@@ -79,58 +107,114 @@ function MessageEmptyState() {
   );
 }
 
-function ReceiverMessageBubble({ content, createdAt }: MessageBubbleProps) {
+function ReceiverMessageBubble({ content, updatedAt }: MessageBubbleProps) {
   return (
     <div className="chat chat-start">
       <div className="chat-bubble bg-base-100">{content}</div>
       <div className="chat-footer opacity-70 mt-1 text-xs">
-        Delivered at {formateTime(createdAt, { mode: "time" })}
+        Delivered at {formateTime(updatedAt, { mode: "time" })}
       </div>
     </div>
   );
 }
 
-function SenderMessageBubble({ content, createdAt }: MessageBubbleProps) {
+function SenderMessageBubble({ content, updatedAt }: MessageBubbleProps) {
   return (
     <div className="chat chat-end">
       <div className="chat-bubble bg-primary/50 text-white">{content}</div>
       <div className="chat-footer opacity-70 mt-1 text-xs">
-        Sent at {formateTime(createdAt, { mode: "time" })}
+        Sent at {formateTime(updatedAt, { mode: "time" })}
       </div>
     </div>
   );
 }
 
 function MessageList() {
+  const { conversationId } = useParams();
+  const [messages, setMessages] = useState<MessageBubbleProps[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const { data, mutate } = useGetMessages();
+
+  useEffect(() => {
+    const handleMessage = (message: MessageBubbleProps) => {
+      setMessages((prev) => [...prev, message]);
+    };
+
+    socket.on(WS_LISTENERS.MSG_DELIVERED, handleMessage);
+
+    return () => {
+      socket.off(WS_LISTENERS.MSG_DELIVERED, handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (data?.messages) {
+      (() => setMessages(data.messages))();
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (conversationId) {
+      mutate(conversationId);
+    }
+  }, [conversationId, mutate]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
   return (
-    <div className="h-[calc(100vh-115px)] py-10 overflow-y-scroll">
-      <div className="w-[90%] mx-auto">
-        {messages.map((message) => (
-          <Fragment key={message?._id}>
-            {message?.senderId == "1" ? (
-              <SenderMessageBubble {...message} />
-            ) : (
-              <ReceiverMessageBubble {...message} />
-            )}
-          </Fragment>
-        ))}
+    <>
+      <div
+        ref={scrollRef}
+        className="h-[calc(100vh-115px)] py-10 overflow-y-scroll"
+      >
+        <div className="w-[90%] flex flex-col gap-3 mx-auto">
+          {messages.map((message) => (
+            <Fragment key={message?._id}>
+              {message?.sender == user?._id ? (
+                <SenderMessageBubble {...message} />
+              ) : (
+                <ReceiverMessageBubble {...message} />
+              )}
+            </Fragment>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 function MessageComposer() {
+  const { conversationId } = useParams();
   const [input, setInput] = useState("");
+
+  const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    socket.emit(WS_EVENTS.MSG_SEND, {
+      content: input,
+      chatID: conversationId,
+    });
+    e.currentTarget.reset();
+  };
 
   return (
     <div className="px-4 py-2 bg-base-100 border-t border-primary/10">
       <div className="w-[90%] flex items-center mx-auto">
-        <form className="w-full flex items-center gap-2">
+        <form
+          className="w-full flex items-center gap-2"
+          onSubmit={handleSendMessage}
+        >
           <label className="input input-bordered w-full">
+            <input type="hidden" defaultValue={conversationId} name="chatID" />
             <input
               type="text"
               placeholder="Type a message..."
-              name="message"
+              name="content"
               onChange={(e) => setInput(e.target.value)}
               required
             />
@@ -145,7 +229,7 @@ function MessageComposer() {
 }
 
 export function Message() {
-  const [hasMessage] = useState(false);
+  const [hasMessage] = useState(true);
 
   return (
     <>
