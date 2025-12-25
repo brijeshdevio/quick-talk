@@ -43,6 +43,7 @@ export class ChatService {
     const chats = await this.chatModel
       .find({ members: { $all: [userId] } })
       .lean()
+      .sort({ updatedAt: -1 })
       .select('-__v -isGroup -groupName -createdAt')
       .populate('members', 'name isOnline lastSeen')
       .populate('lastMessage', 'content');
@@ -61,7 +62,7 @@ export class ChatService {
     const messages = await this.messageModel
       .find({ chat })
       .lean()
-      .select('-__v -updatedAt -chat')
+      .select('-__v -chat')
       .limit(100);
     return messages;
   }

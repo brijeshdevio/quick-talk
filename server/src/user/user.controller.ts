@@ -28,12 +28,14 @@ export class UserController {
     return res.json({ users });
   }
 
-  @Get(':id')
+  @Get(':chatId')
   async handleGetUser(
-    @Param('id') id: string,
+    @Req() req: { user: { sub: string } },
+    @Param('chatId') chatId: string,
     @Res() res: Response,
   ): Promise<Response> {
-    const user = await this.userService.getUser(id);
-    return res.json({ user });
+    const userId = req.user.sub;
+    const result = await this.userService.getUser(userId, chatId);
+    return res.json(result);
   }
 }

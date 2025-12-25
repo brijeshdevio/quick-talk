@@ -1,17 +1,18 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
+import { Chat } from 'src/schema/chat.schema';
 import { User } from 'src/schema/user.schema';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
   ) {}
 
   private isValidMongoID(_id: string): boolean {
@@ -41,18 +42,22 @@ export class UserService {
       .select('_id name email');
   }
 
-  async getUser(userId: string): Promise<User> {
-    this.isValidMongoID(userId);
+  async getUser(userId: string, chatId: string) {
+    this.isValidMongoID(chatId);
+    const chat = await this.chatModel
+      .findOne({
+        _id: chatId,
+        // members: { $ne: userId },
+      })
+      .populate('members', 'name isOnline lastSeen avatar');
 
-    const user = await this.userModel
-      .findById(userId)
-      .lean()
-      .select('_id name isOnline lastSeen');
-
-    if (user) {
-      return user;
+    if (chat) {
+      return {
+        user: chat.members.find((member) => String(member._id) !== userId),
+      };
     }
-    throw new NotFoundException('User not found.');
+
+    throw new BadRequestException('Chat not found.');
   }
 
   async setStatus(userId: string, isOnline: boolean = false): Promise<User> {
