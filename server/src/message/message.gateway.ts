@@ -21,7 +21,7 @@ export class MessageGateway {
     private readonly messageService: MessageService,
     private readonly chatService: ChatService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   // Built-in - Connect
   async handleConnection(client: Socket) {
@@ -52,7 +52,7 @@ export class MessageGateway {
   @SubscribeMessage(WS_EVENTS.MSG_SEND)
   async sendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() { chatID, content }: CreateMessageDto,
+    @MessageBody() { chatID, content, isMemberOnline }: CreateMessageDto,
   ) {
     const sender = (await wsAuthGuard(client)) as string;
     if (sender) {
@@ -60,6 +60,7 @@ export class MessageGateway {
         sender,
         chatID,
         content,
+        isMemberOnline
       )) as unknown as { _id: string };
 
       await this.chatService.updateLastMessage(chatID, String(message._id));

@@ -11,6 +11,9 @@ export class Message {
   @Prop({ type: Types.ObjectId, required: true })
   sender: Types.ObjectId;
 
+  @Prop({ type: Boolean, default: false })
+  isDelivered: boolean;
+
   @Prop({ type: Types.ObjectId, required: true, ref: 'Chat' })
   chat: Types.ObjectId;
 }

@@ -7,7 +7,7 @@ import { isValidObjectId, Model } from 'mongoose';
 export class MessageService {
   constructor(
     @InjectModel(Message.name) private readonly messageModel: Model<Message>,
-  ) {}
+  ) { }
 
   private isValidMongoID(_id: string): boolean {
     if (isValidObjectId(_id)) return true;
@@ -18,12 +18,14 @@ export class MessageService {
     sender: string,
     chat: string,
     content: string,
+    isDelivered: boolean,
   ): Promise<Message> {
     this.isValidMongoID(chat);
     const message = await this.messageModel.create({
       sender,
       chat,
       content,
+      isDelivered
     });
     return message;
   }

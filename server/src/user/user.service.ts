@@ -13,7 +13,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
-  ) {}
+  ) { }
 
   private isValidMongoID(_id: string): boolean {
     if (isValidObjectId(_id)) return true;
@@ -60,23 +60,15 @@ export class UserService {
     throw new BadRequestException('Chat not found.');
   }
 
-  async setStatus(userId: string, isOnline: boolean = false): Promise<User> {
+  async setStatus(userId: string, isOnline: boolean = false): Promise<void> {
     this.isValidMongoID(userId);
-    const user = await this.userModel.findByIdAndUpdate(
+    await this.userModel.findByIdAndUpdate(
       userId,
       {
         isOnline: isOnline,
         lastSeen: new Date(),
       },
       { new: true },
-    );
-
-    if (user) {
-      return user;
-    }
-
-    throw new UnauthorizedException(
-      'You are not authorized to access this resource.',
     );
   }
 }
