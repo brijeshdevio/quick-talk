@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, SmilePlus } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
 import { formateTime } from "@/utils";
 import { useGetUser } from "@/queries/user.queries";
 import { socket } from "@/api/socket.service";
@@ -192,6 +193,7 @@ function MessageList() {
 function MessageComposer() {
   const { conversationId } = useParams();
   const [input, setInput] = useState("");
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -200,31 +202,66 @@ function MessageComposer() {
       chatID: conversationId,
     });
     e.currentTarget.reset();
+    setInput("");
+    toggleEmojiPicker(false);
   };
 
+  function toggleEmojiPicker(state: boolean) {
+    if (!state) {
+      setIsEmojiPickerOpen(state);
+    } else {
+      setIsEmojiPickerOpen((prev) => !prev);
+    }
+  }
+
+  function onReactionClick({ emoji }: { emoji: string }) {
+    setInput((prev) => prev + emoji);
+  }
+
   return (
-    <div className="px-4 py-2 bg-base-100 border-t border-primary/10">
-      <div className="w-[90%] flex items-center mx-auto">
-        <form
-          className="w-full flex items-center gap-2"
-          onSubmit={handleSendMessage}
-        >
-          <label className="input input-bordered w-full">
-            <input type="hidden" defaultValue={conversationId} name="chatID" />
-            <input
-              type="text"
-              placeholder="Type a message..."
-              name="content"
-              onChange={(e) => setInput(e.target.value)}
-              required
+    <>
+      <div className="px-4 py-2 bg-base-100 border-t border-primary/10">
+        <div className="relative w-[90%] flex items-center mx-auto">
+          <div
+            className={`absolute bottom-16 left-2 ${
+              isEmojiPickerOpen ? "block" : "hidden"
+            }`}
+          >
+            <EmojiPicker
+              onEmojiClick={onReactionClick}
+              className="max-h-[300px] min-h-[300px] md:w-auto"
             />
-          </label>
-          <button className="btn btn-primary" type="submit" disabled={!input}>
-            <SendHorizontal size={20} />
-          </button>
-        </form>
+          </div>
+          <form
+            className="w-full flex items-center gap-2"
+            onSubmit={handleSendMessage}
+          >
+            <label className="input input-bordered w-full">
+              <SmilePlus
+                className="text-xl opacity-50 group-hover:opacity-100 cursor-pointer"
+                onClick={() => toggleEmojiPicker(true)}
+              />
+              <input
+                type="hidden"
+                defaultValue={conversationId}
+                name="chatID"
+              />
+              <input
+                type="text"
+                placeholder="Type a message..."
+                name="content"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                required
+              />
+            </label>
+            <button className="btn btn-primary" type="submit" disabled={!input}>
+              <SendHorizontal size={20} />
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
