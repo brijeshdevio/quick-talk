@@ -13,7 +13,7 @@ export class ChatService {
   constructor(
     @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
     @InjectModel(Message.name) private readonly messageModel: Model<Message>,
-  ) {}
+  ) { }
 
   private isValidMongoID(_id: string): boolean {
     if (isValidObjectId(_id)) return true;
@@ -79,5 +79,15 @@ export class ChatService {
     }
 
     throw new BadRequestException('Chat not found.');
+  }
+
+  async updateMessagesUserOnline(userId: string) {
+    const chats = await this.chatModel.find({ members: { $all: [userId] } });
+    if (chats.length === 0) return;
+
+    chats?.forEach(async (chat) => {
+      const sender = chat.members.find((member) => String(member) != userId);
+      await this.messageModel.updateMany({ chat: String(chat._id), sender, isDelivered: false }, { isDelivered: true });
+    });
   }
 }

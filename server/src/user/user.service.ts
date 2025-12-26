@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
+import { ChatService } from 'src/chat/chat.service';
 import { Chat } from 'src/schema/chat.schema';
 import { User } from 'src/schema/user.schema';
 
@@ -13,6 +14,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
+    private readonly chatService: ChatService,
   ) { }
 
   private isValidMongoID(_id: string): boolean {
@@ -62,6 +64,10 @@ export class UserService {
 
   async setStatus(userId: string, isOnline: boolean = false): Promise<void> {
     this.isValidMongoID(userId);
+    if (isOnline) {
+      await this.chatService.updateMessagesUserOnline(userId);
+    }
+
     await this.userModel.findByIdAndUpdate(
       userId,
       {
