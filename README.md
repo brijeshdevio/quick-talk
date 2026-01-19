@@ -1,178 +1,135 @@
-# QuickTalk 💬
+# Turborepo starter
 
-**Real-time 1-to-1 chat application**
+This Turborepo starter is maintained by the Turborepo core team.
 
-QuickTalk is a lightweight, real-time chat application inspired by WhatsApp-style conversations.  
-It focuses on **core chat reliability**, **clean UX**, and **real-time presence**, without unnecessary complexity.
+## Using this example
 
----
+Run the following command:
 
-## 🚀 Features
-
-### 🔐 Authentication
-
-- User signup & login
-- Secure JWT-based authentication
-- Protected routes
-
----
-
-### 💬 Real-Time Messaging
-
-- 1-to-1 live chat
-- Messages delivered instantly using WebSockets
-- Messages persist after refresh
-
----
-
-### 🧑‍🤝‍🧑 Add Users (Contacts)
-
-- Search users by email / username
-- Start a new conversation instantly
-- Prevent duplicate chats
-
----
-
-### 🟢 Online / Offline Presence
-
-- Live online status
-- Automatic offline detection on disconnect
-- Real-time status updates
-
----
-
-### 📂 Sidebar Chat List
-
-- Recent conversations
-- Sorted by last activity
-- Displays last message preview
-
----
-
-### 🧭 Thoughtful UX States
-
-- Welcome screen when no chat is selected
-- Empty chat state for new conversations
-- Loading states for messages
-- No-user-found feedback while searching
-
----
-
-## 🖥️ Pages & Screenshots
-
-### 🏠 Landing Page
-
-Simple marketing page explaining the app.
-
-![Landing Page](./screenshots/landing.png)
-
----
-
-### 🔑 Signup Page
-
-Create a new account securely.
-
-![Signup Page](./screenshots/signup.png)
-
----
-
-### 🔐 Login Page
-
-Authenticate and access the app.
-
-![Login Page](./screenshots/login.png)
-
----
-
-### 👋 Welcome / Empty State
-
-Displayed when no chat is selected.
-
-![Welcome Page](./screenshots/welcome.png)
-
----
-
-### 💬 Chat Page
-
-Real-time conversation view with message input.
-
-![Chat Page](./screenshots/chat.png)
-
----
-
-## 🧱 Tech Stack
-
-### Frontend
-
-- React.js
-- TypeScript
-- Tailwind CSS + DaisyUI
-- Axios
-- Tanstack/react-query
-- WebSocket client
-
-### Backend
-
-- Node.js
-- NestJS
-- MongoDB + Mongoose
-- JWT Authentication
-- WebSockets (real-time messaging)
-
----
-
-## ⚙️ Core Concepts Implemented
-
-- Real-time communication using WebSockets
-- JWT-secured socket connections
-- Conversation-based message modeling
-- Clean separation of REST & socket logic
-- Persistent chat history
-- Online/offline presence tracking
-
----
-
-## 📦 Installation & Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/brijeshdevio/quick-talk.git
-
-# Frontend
-cd quick-talk/client
-npm install
-npm run dev
-
-# Backend
-cd ../server
-npm install
-npm run start:dev
+```sh
+npx create-turbo@latest
 ```
 
-> Make sure MongoDB is running and environment variables are configured.
+## What's inside?
 
----
+This Turborepo includes the following packages/apps:
 
-## 🛣️ Future Enhancements (Planned)
+### Apps and Packages
 
-- Message delivery & read receipts
-- Typing indicators
-- Group chats
-- Media sharing
-- Push notifications
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
----
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-## 👨‍💻 Author
+### Utilities
 
-**Brijesh**
-Frontend-focused Full Stack Developer
+This Turborepo has some additional tools already setup for you:
 
-- GitHub: [@brijeshdevio](https://github.com/brijeshdevio)
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
 
----
+### Build
 
-## ⭐️ Support
+To build all apps and packages, run the following command:
 
-If you find this project useful, please consider giving it a **star ⭐**
-It helps a lot and motivates further development.
+```
+cd my-turborepo
+
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo build
+yarn dlx turbo build
+pnpm exec turbo build
+```
+
+You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+
+```
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build --filter=docs
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo build --filter=docs
+yarn exec turbo build --filter=docs
+pnpm exec turbo build --filter=docs
+```
+
+### Develop
+
+To develop all apps and packages, run the following command:
+
+```
+cd my-turborepo
+
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo dev
+yarn exec turbo dev
+pnpm exec turbo dev
+```
+
+You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+
+```
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev --filter=web
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo dev --filter=web
+yarn exec turbo dev --filter=web
+pnpm exec turbo dev --filter=web
+```
+
+### Remote Caching
+
+> [!TIP]
+> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+
+Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+
+```
+cd my-turborepo
+
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo login
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo login
+yarn exec turbo login
+pnpm exec turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+
+```
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo link
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo link
+yarn exec turbo link
+pnpm exec turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
+- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
+- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
+- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
+- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
+- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
