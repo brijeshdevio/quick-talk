@@ -28,3 +28,18 @@ Content-Type: application/json
 ### POST - /auth/logout
 POST {{BASE_URL}}/auth/logout
 Authorization: Bearer [ACCESS_TOKEN]
+
+
+### GET - /users/me
+GET {{BASE_URL}}/users/me
+# Authorization: Bearer [ACCESS_TOKEN]
+
+
+### GET - /users
+GET {{BASE_URL}}/users
+# Authorization: Bearer [ACCESS_TOKEN]
+
+
+### GET - /users/:id
+GET {{BASE_URL}}/users/0d273e9f-bfde-49e7-9437-0b663522a697
+# Authorization: Bearer [ACCESS_TOKEN]
