@@ -1,15 +1,55 @@
-import { Search, MessageSquare, Hash, Users, Settings } from "lucide-react";
+import { Search, MessageSquare, Hash, Users, Settings, Loader2 } from "lucide-react";
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
-const RECENT_CHATS = [
-  { id: 1, name: "Julian Vane", msg: "The layout looks incredible...", online: true },
-  { id: 2, name: "Elena Rossi", msg: "Are we still meeting at 5?", online: false },
-  { id: 3, name: "Marcus Thorne", msg: "Sent the final sketches.", online: true },
-];
+type Participant = { _id: string; username: string; avatar?: string; isOnline?: boolean };
+type ChatMessage = { _id: string; content: string };
+type Chat = {
+  _id: string;
+  name?: string;
+  isGroupChat: boolean;
+  participants: Participant[];
+  lastMessage?: ChatMessage;
+  avatar?: string;
+};
+
+// Utilities
+const getChatName = (chat: Chat, currentUserId?: string) => {
+  if (chat.isGroupChat) return chat.name || "Group Chat";
+  const other = chat.participants.find(p => p._id !== currentUserId);
+  return other?.username || "Unknown User";
+};
+
+const getChatInitials = (name: string) => {
+  return name.slice(0, 2).toUpperCase();
+};
+
+const isChatOnline = (chat: Chat, currentUserId?: string) => {
+  if (chat.isGroupChat) return false; // Online status mostly useful for 1-on-1s. For group, could check if any are online
+  const other = chat.participants.find(p => p._id !== currentUserId);
+  return !!other?.isOnline;
+};
 
 export function ChatLayout() {
   const location = useLocation();
   const currentPath = location.pathname;
+
+  // Get current user id from auth query (returns ApiResponse)
+  const { data: authResponse } = useQuery<any>({ queryKey: ["auth-user"] });
+  const currentUserId = authResponse?.data?._id;
+
+  // Fetch chats
+  const { data: chatsResponse, isLoading } = useQuery({
+    queryKey: ["chats"],
+    queryFn: async () => {
+      const res = await api.get("/chats");
+      return res.data;
+    },
+    enabled: !!currentUserId,
+  });
+
+  const chats: Chat[] = chatsResponse?.data || [];
 
   return (
     <div className="flex h-screen bg-surface-container-low text-primary-brand font-sans overflow-hidden">
@@ -58,32 +98,50 @@ export function ChatLayout() {
         <div className="flex-1 overflow-y-auto px-3 pb-6 flex flex-col gap-1">
           <h2 className="text-[10px] font-bold tracking-widest text-tertiary-brand/70 uppercase px-4 mb-2">Recent</h2>
           
-          {RECENT_CHATS.map((chat) => (
-            <Link 
-              key={chat.id} 
-              to={`/chat/${chat.id}`}
-              className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors cursor-pointer ${currentPath === `/chat/${chat.id}` ? 'bg-surface-container-high' : 'hover:bg-surface-container-low/50'}`}
-            >
-              {/* Avatar Mock */}
-              <div className="relative shrink-0">
-                <div className="w-10 h-10 rounded-md bg-secondary-brand flex items-center justify-center text-white font-bold text-xs">
-                   <div className="w-5 h-5 bg-tertiary-brand/50 rounded-full mt-1"></div>
+          {isLoading && (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="w-5 h-5 text-tertiary-brand animate-spin" />
+            </div>
+          )}
+
+          {!isLoading && chats.length === 0 && (
+            <div className="text-center px-4 py-8">
+              <p className="text-xs text-tertiary-brand font-medium">No recent conversations.</p>
+            </div>
+          )}
+
+          {!isLoading && chats.map((chat) => {
+            const chatName = getChatName(chat, currentUserId);
+            const initials = getChatInitials(chatName);
+            const isOnline = isChatOnline(chat, currentUserId);
+            
+            return (
+              <Link 
+                key={chat._id} 
+                to={`/chat/${chat._id}`}
+                className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors cursor-pointer ${currentPath === `/chat/${chat._id}` ? 'bg-surface-container-high' : 'hover:bg-surface-container-low/50'}`}
+              >
+                {/* Avatar Mock */}
+                <div className="relative shrink-0">
+                  <div className="w-10 h-10 rounded-md bg-secondary-brand flex items-center justify-center text-white font-bold text-xs uppercase">
+                     {initials}
+                  </div>
+                  {isOnline && (
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#4ade80] border-2 border-surface-container-low rounded-full"></div>
+                  )}
                 </div>
-                {chat.online && (
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#4ade80] border-2 border-surface-container-low rounded-full"></div>
-                )}
-              </div>
-              
-              <div className="flex flex-col min-w-0">
-                <span className={`text-sm truncate ${currentPath === `/chat/${chat.id}` ? 'font-bold text-primary-brand' : 'font-semibold text-primary-brand/80'}`}>
-                  {chat.name}
-                </span>
-                <span className="text-xs truncate text-tertiary-brand">
-                  {chat.msg}
-                </span>
-              </div>
-            </Link>
-          ))}
+                
+                <div className="flex flex-col min-w-0">
+                  <span className={`text-sm truncate ${currentPath === `/chat/${chat._id}` ? 'font-bold text-primary-brand' : 'font-semibold text-primary-brand/80'}`}>
+                    {chatName}
+                  </span>
+                  <span className="text-xs truncate text-tertiary-brand">
+                    {chat.lastMessage?.content || "No messages yet"}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </aside>
 
