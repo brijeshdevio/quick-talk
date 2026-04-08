@@ -6,6 +6,7 @@ import { RegisterPage } from "./pages/RegisterPage"
 import { LoginPage } from "./pages/LoginPage"
 import { ChatPage } from "./pages/ChatPage"
 import { EmptyChatPage } from "./pages/EmptyChatPage"
+import { ProtectedRoute } from "./components/ProtectedRoute"
 
 export function App() {
   return (
@@ -15,9 +16,11 @@ export function App() {
       </Route>
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/chat" element={<ChatLayout />}>
-        <Route index element={<EmptyChatPage />} />
-        <Route path=":id" element={<ChatPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/chat" element={<ChatLayout />}>
+          <Route index element={<EmptyChatPage />} />
+          <Route path=":id" element={<ChatPage />} />
+        </Route>
       </Route>
     </Routes>
   )

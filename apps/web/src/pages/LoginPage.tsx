@@ -1,8 +1,48 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const { mutate, isPending, error, isError } = useMutation({
+    mutationFn: async (data: LoginFormData) => {
+      const response = await api.post("/auth/login", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      navigate("/chat");
+    },
+  });
+
+  const onSubmit = (data: LoginFormData) => {
+    mutate(data);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-4 text-primary-brand">
       {/* Top Branding */}
@@ -16,36 +56,62 @@ export function LoginPage() {
         <h2 className="text-xl font-bold mb-2">Welcome back</h2>
         <p className="text-tertiary-brand text-sm mb-8">Enter your credentials to access your workspace.</p>
 
-        <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+        {isError && (
+          <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm border border-red-200">
+            {/* @ts-ignore */}
+            {error?.response?.data?.message || error?.message || "Invalid credentials. Please try again."}
+          </div>
+        )}
+
+        <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
           {/* Email Field */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80">Email address</label>
+            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80" htmlFor="email">Email address</label>
             <input 
+              id="email"
               type="email" 
               placeholder="name@company.com" 
-              className="w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand/50 transition-all focus:bg-surface-container-high" 
+              {...register("email")}
+              className={`w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand/50 transition-all focus:bg-surface-container-high ${errors.email ? "border border-red-500" : ""}`} 
             />
+            {errors.email && <p className="text-[10px] text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
           {/* Password Field */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80">Password</label>
+                <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80" htmlFor="password">Password</label>
                 <Link to="/forgot-password" className="text-[10px] font-medium text-tertiary-brand hover:text-primary-brand hover:underline transition-colors">
                     Forgot password?
                 </Link>
             </div>
             
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              className="w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand tracking-widest transition-all focus:bg-surface-container-high" 
-            />
+            <div className="relative">
+              <input 
+                id="password"
+                type={showPassword ? "text" : "password"} 
+                placeholder="••••••••" 
+                {...register("password")}
+                className={`w-full bg-surface-container-low h-12 px-4 pr-12 rounded-lg outline-none text-sm placeholder:text-tertiary-brand tracking-widest transition-all focus:bg-surface-container-high ${errors.password ? "border border-red-500" : ""}`} 
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-tertiary-brand hover:text-primary-brand transition-colors cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+              </button>
+            </div>
+            {errors.password && <p className="text-[10px] text-red-500 mt-1">{errors.password.message}</p>}
           </div>
 
           {/* Login Submit */}
-          <Button type="submit" className="w-full bg-primary-brand text-white border-none rounded-lg h-12 font-medium hover:bg-primary-brand/90 mt-2 shadow-sm text-sm flex items-center justify-center gap-2">
-            Sign In <ArrowRight className="w-4 h-4 ml-1" />
+          <Button 
+            type="submit" 
+            disabled={isPending}
+            className="w-full bg-primary-brand text-white border-none rounded-lg h-12 font-medium hover:bg-primary-brand/90 mt-2 shadow-sm text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4 ml-1" /></>}
           </Button>
 
           {/* Separator */}

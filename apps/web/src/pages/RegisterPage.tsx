@@ -1,8 +1,47 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+
+const registerSchema = z.object({
+  username: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Must be at least 8 characters long"),
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const { mutate, isPending, error, isError } = useMutation({
+    mutationFn: async (data: RegisterFormData) => {
+      const response = await api.post("/auth/register", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      navigate("/login", { state: { message: "Registration successful. Please login." } });
+    },
+  });
+
+  const onSubmit = (data: RegisterFormData) => {
+    mutate(data);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-4 text-primary-brand">
       {/* Top Branding */}
@@ -16,45 +55,73 @@ export function RegisterPage() {
         <h2 className="text-xl font-bold mb-2">Create an account</h2>
         <p className="text-tertiary-brand text-sm mb-8">Enter your details to get started</p>
 
-        <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+        {isError && (
+          <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm border border-red-200">
+            {/* @ts-ignore */}
+            {error?.response?.data?.message || error?.message || "Something went wrong. Please try again."}
+          </div>
+        )}
+
+        <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
           {/* Name Field */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80">Name</label>
+            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80" htmlFor="username">Name</label>
             <input 
+              id="username"
               type="text" 
               placeholder="John Doe" 
-              className="w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand/50 transition-all focus:bg-surface-container-high" 
+              {...register("username")}
+              className={`w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand/50 transition-all focus:bg-surface-container-high ${errors.username ? "border border-red-500" : ""}`} 
             />
+            {errors.username && <p className="text-[10px] text-red-500 mt-1">{errors.username.message}</p>}
           </div>
 
           {/* Email Field */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80">Email</label>
+            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80" htmlFor="email">Email</label>
             <input 
+              id="email"
               type="email" 
               placeholder="name@example.com" 
-              className="w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand/50 transition-all focus:bg-surface-container-high" 
+              {...register("email")}
+              className={`w-full bg-surface-container-low h-12 px-4 rounded-lg outline-none text-sm placeholder:text-tertiary-brand/50 transition-all focus:bg-surface-container-high ${errors.email ? "border border-red-500" : ""}`} 
             />
+            {errors.email && <p className="text-[10px] text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
           {/* Password Field */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80">Password</label>
+            <label className="text-[10px] font-bold tracking-widest uppercase text-tertiary-brand/80" htmlFor="password">Password</label>
             <div className="relative">
               <input 
-                type="password" 
+                id="password"
+                type={showPassword ? "text" : "password"} 
                 placeholder="••••••••" 
-                className="w-full bg-surface-container-low h-12 pl-4 pr-12 rounded-lg outline-none text-sm placeholder:text-tertiary-brand tracking-widest transition-all focus:bg-surface-container-high" 
+                {...register("password")}
+                className={`w-full bg-surface-container-low h-12 pl-4 pr-12 rounded-lg outline-none text-sm placeholder:text-tertiary-brand tracking-widest transition-all focus:bg-surface-container-high ${errors.password ? "border border-red-500" : ""}`} 
               />
-              <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-tertiary-brand hover:text-primary-brand transition-colors cursor-pointer">
-                <Eye size={18} strokeWidth={2.5} />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-tertiary-brand hover:text-primary-brand transition-colors cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
               </button>
             </div>
-            <p className="text-[10px] text-tertiary-brand mt-1">Must be at least 8 characters long.</p>
+            {errors.password ? (
+              <p className="text-[10px] text-red-500 mt-1">{errors.password.message}</p>
+            ) : (
+              <p className="text-[10px] text-tertiary-brand mt-1">Must be at least 8 characters long.</p>
+            )}
           </div>
 
           {/* Register Submit */}
-          <Button type="submit" className="w-full bg-primary-brand text-white border-none rounded-lg h-12 font-medium hover:bg-primary-brand/90 mt-2 shadow-sm text-sm">
+          <Button 
+            type="submit" 
+            disabled={isPending}
+            className="w-full flex justify-center items-center gap-2 bg-primary-brand text-white border-none rounded-lg h-12 font-medium hover:bg-primary-brand/90 mt-2 shadow-sm text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Register
           </Button>
 
