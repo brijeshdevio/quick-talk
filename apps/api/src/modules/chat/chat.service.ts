@@ -6,7 +6,7 @@ export class ChatService {
   // 🔒 REST only — get all chats for sidebar
   static async getUserChats(userId: string) {
     return Chat.find({ participants: userId })
-      .populate("participants", "username avatar isOnline")
+      .populate("participants", "username avatar isOnline lastSeen")
       .populate("lastMessage")
       .populate("admin", "username")
       .sort({ updatedAt: -1 });
@@ -18,7 +18,7 @@ export class ChatService {
       _id: chatId,
       participants: userId,
     })
-      .populate("participants", "username avatar isOnline")
+      .populate("participants", "username avatar isOnline lastSeen")
       .populate("lastMessage");
 
     if (!chat) throw new ApiError(404, "Chat not found");
@@ -39,7 +39,7 @@ export class ChatService {
       isGroupChat: false,
       participants: { $all: [currentUserId, targetUserId] },
     })
-      .populate("participants", "username avatar isOnline")
+      .populate("participants", "username avatar isOnline lastSeen")
       .populate("lastMessage");
 
     if (existing) return { chat: existing, isNew: false };
@@ -50,7 +50,7 @@ export class ChatService {
     });
 
     const populated = await Chat.findById(chat._id)
-      .populate("participants", "username avatar isOnline")
+      .populate("participants", "username avatar isOnline lastSeen")
       .populate("lastMessage");
 
     return { chat: populated, isNew: true };
@@ -79,7 +79,7 @@ export class ChatService {
     });
 
     return Chat.findById(chat._id)
-      .populate("participants", "username avatar isOnline")
+      .populate("participants", "username avatar isOnline lastSeen")
       .populate("admin", "username avatar");
   }
 

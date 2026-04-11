@@ -7,22 +7,25 @@ import { LoginPage } from "./pages/LoginPage"
 import { ChatPage } from "./pages/ChatPage"
 import { EmptyChatPage } from "./pages/EmptyChatPage"
 import { ProtectedRoute } from "./components/ProtectedRoute"
+import { SocketProvider } from "./context/SocketContext"
 
 export function App() {
   return (
-    <Routes>
-      <Route element={<LandingLayout />}>
-        <Route path="/" element={<LandingPage />} />
-      </Route>
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path="/chat" element={<ChatLayout />}>
-          <Route index element={<EmptyChatPage />} />
-          <Route path=":id" element={<ChatPage />} />
+    <SocketProvider>
+      <Routes>
+        <Route element={<LandingLayout />}>
+          <Route path="/" element={<LandingPage />} />
         </Route>
-      </Route>
-    </Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/chat" element={<ChatLayout />}>
+            <Route index element={<EmptyChatPage />} />
+            <Route path=":id" element={<ChatPage />} />
+          </Route>
+        </Route>
+      </Routes>
+    </SocketProvider>
   )
 }
 

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import cookie from "cookie";
+import * as cookie from "cookie";
 import { verifyJwt } from "../lib/jwt";
 
 export interface AuthenticatedSocket extends Socket {

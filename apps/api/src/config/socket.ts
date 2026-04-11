@@ -1,12 +1,13 @@
 import { Server, Socket } from "socket.io";
 import { Server as HTTPServer } from "http";
+import { env } from "./env";
 
 let io: Server;
 
 export const initSocket = (httpServer: HTTPServer): Server => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: env.FRONTEND,
       credentials: true, // required for cookies
     },
   });

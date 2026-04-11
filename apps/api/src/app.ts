@@ -8,6 +8,7 @@ import { authRouter } from "./modules/auth/auth.routes";
 import { messageRouter } from "./modules/message/message.routes";
 import { chatRouter } from "./modules/chat/chat.routes";
 import { userRouter } from "./modules/user/user.routes";
+import { env } from "./config/env";
 
 const app: Application = express();
 
@@ -15,7 +16,7 @@ const app: Application = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: env.FRONTEND,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),

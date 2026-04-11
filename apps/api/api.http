@@ -26,8 +26,8 @@ POST {{BASE_URL}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "kinih12939@fengnu.com",     
-  "password": "12345678"         
+  "email": "johndoe@duck.com",     
+  "password": "johndoe@duck.com"         
 }
 
 

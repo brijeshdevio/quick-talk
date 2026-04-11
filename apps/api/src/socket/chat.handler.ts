@@ -1,17 +1,14 @@
 import { Server } from "socket.io";
 import { AuthenticatedSocket } from "./socket.auth";
-import { chatModel } from "../models/chat.model";
-import { messageModel } from "../models/message.model";
+import { Chat } from "../modules/chat/chat.model";
+import { Message } from "../modules/message/message.model";
 
-export function registerChatHandlers(
-  io: Server,
-  socket: AuthenticatedSocket,
-) {
+export function registerChatHandlers(io: Server, socket: AuthenticatedSocket) {
   const userId = socket.userId;
 
   // Join all chat rooms the user belongs to
   const joinUserChats = async () => {
-    const chats = await chatModel.find({ members: userId });
+    const chats = await Chat.find({ members: userId });
     for (const chat of chats) {
       socket.join(`chat:${chat._id}`);
     }
@@ -20,12 +17,16 @@ export function registerChatHandlers(
   // Send a message
   const onSendMessage = async (
     data: { chatId: string; content: string },
-    callback?: (response: { success: boolean; data?: any; error?: string }) => void,
+    callback?: (response: {
+      success: boolean;
+      data?: any;
+      error?: string;
+    }) => void,
   ) => {
     try {
       const { chatId, content } = data;
 
-      const chat = await chatModel.findOne({
+      const chat = await Chat.findOne({
         _id: chatId,
         members: userId,
       });
@@ -34,14 +35,14 @@ export function registerChatHandlers(
         return callback?.({ success: false, error: "Chat not found" });
       }
 
-      const message = await messageModel.create({
+      const message = await Message.create({
         sender: userId,
         chat: chatId,
         content,
         readBy: [userId],
       });
 
-      await chatModel.findByIdAndUpdate(chatId, {
+      await Chat.findByIdAndUpdate(chatId, {
         lastMessage: message._id,
       });
 
@@ -81,7 +82,7 @@ export function registerChatHandlers(
     try {
       const { chatId } = data;
 
-      const chat = await chatModel.findOne({
+      const chat = await Chat.findOne({
         _id: chatId,
         members: userId,
       });
@@ -90,7 +91,7 @@ export function registerChatHandlers(
         return callback?.({ success: false, error: "Chat not found" });
       }
 
-      await messageModel.updateMany(
+      await Message.updateMany(
         { chat: chatId, readBy: { $ne: userId } },
         { $addToSet: { readBy: userId } },
       );

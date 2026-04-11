@@ -1,7 +1,8 @@
 import { Socket } from "socket.io";
 import jwt from "jsonwebtoken";
-import cookie from "cookie";
+import * as cookie from "cookie";
 import { User } from "../../modules/user/user.model";
+import { env } from "../../config/env";
 
 export interface AuthenticatedSocket extends Socket {
   user: {
@@ -29,12 +30,15 @@ export const socketAuthMiddleware = async (
       return next(new Error("Unauthorized: No token provided"));
     }
 
-    const decoded = jwt.verify(finalToken, process.env.JWT_SECRET!) as {
-      _id: string;
+    const decoded = jwt.verify(finalToken, env.JWT_SECRET) as {
+      sub: string;
     };
 
-    const user = await User.findById(decoded._id).select("_id username avatar");
-    if (!user) return next(new Error("Unauthorized: User not found"));
+    const user = await User.findById(decoded.sub).select("_id username avatar");
+    if (!user) {
+      console.error("🔴 User not found for token sub:", decoded.sub);
+      return next(new Error("Unauthorized: User not found"));
+    }
 
     (socket as AuthenticatedSocket).user = {
       _id: String(user._id),
@@ -43,7 +47,10 @@ export const socketAuthMiddleware = async (
     };
 
     next();
-  } catch (err) {
-    next(new Error("Unauthorized: Invalid token"));
+  } catch (err: any) {
+    console.error("🔴 JWT Verify Error Stack:");
+    console.error("finalToken: UNDEFINED/FALSY");
+    console.error("Error instance:", err);
+    next(new Error(`Unauthorized: Invalid token (${err.message})`));
   }
 };

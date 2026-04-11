@@ -6,6 +6,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   MONGODB_URL: z.url(),
   JWT_SECRET: z.string().min(32),
+  REFRESH_TOKEN_SECRET: z.string().min(32),
   FRONTEND: z.url(),
 });
 
