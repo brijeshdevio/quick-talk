@@ -27,7 +27,8 @@ export function ChatPage() {
   const currentUserId = authResponse?.data?._id;
 
   // Socket
-  const { sendMessage, isConnected } = useChatSocket(chatId);
+  const { sendMessage, isConnected, typingUsers, sendTypingStart, sendTypingStop } = useChatSocket(chatId);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Chat Metadata 
   const { data: chatResponse, isLoading: isChatLoading } = useQuery({
@@ -103,6 +104,23 @@ export function ChatPage() {
     if (!inputValue.trim() || !isConnected) return;
     sendMessage(inputValue.trim());
     setInputValue("");
+    
+    // Stop typing immediately
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    sendTypingStop();
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    sendTypingStart();
+    typingTimeoutRef.current = setTimeout(() => {
+      sendTypingStop();
+    }, 1500);
   };
 
   if (isChatLoading) {
@@ -199,6 +217,21 @@ export function ChatPage() {
             );
           })
         )}
+        
+        {/* Typing Indicator UI */}
+        {Object.keys(typingUsers).length > 0 && (
+          <div className="flex items-center gap-2 self-start bg-surface-container-high py-3 px-5 rounded-[0.5rem] shadow-sm mb-2 opacity-80">
+            <span className="text-xs font-semibold text-tertiary-brand">
+              {Object.values(typingUsers).join(", ")} is typing
+            </span>
+            <div className="flex items-center gap-1 h-3">
+              <span className="w-1.5 h-1.5 bg-tertiary-brand rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 bg-tertiary-brand rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 bg-tertiary-brand rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -209,7 +242,7 @@ export function ChatPage() {
              type="text" 
              name="message"
              value={inputValue}
-             onChange={(e) => setInputValue(e.target.value)}
+             onChange={handleInputChange}
              disabled={!isConnected}
              placeholder={isConnected ? "Type your message..." : "Connecting..."} 
              className="flex-1 h-full bg-transparent border-none outline-none text-sm placeholder:text-tertiary-brand/60"

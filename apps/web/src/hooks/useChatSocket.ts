@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useSocket } from "../context/SocketContext"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -14,6 +14,9 @@ interface MessagePayload {
 export function useChatSocket(chatId: string | undefined) {
   const { socket, isConnected } = useSocket()
   const queryClient = useQueryClient()
+  
+  // Track typing users: { "userId": "username" }
+  const [typingUsers, setTypingUsers] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!socket || !chatId || !isConnected) return
@@ -67,12 +70,32 @@ export function useChatSocket(chatId: string | undefined) {
       queryClient.invalidateQueries({ queryKey: ["chats"] })
     }
 
+    const handleTypingStart = ({ chatId: typedChatId, userId, username }: { chatId: string, userId: string, username: string }) => {
+      if (typedChatId !== chatId) return;
+      setTypingUsers(prev => ({ ...prev, [userId]: username }));
+    };
+
+    const handleTypingStop = ({ chatId: typedChatId, userId }: { chatId: string, userId: string }) => {
+      if (typedChatId !== chatId) return;
+      setTypingUsers(prev => {
+        const next = { ...prev };
+        delete next[userId];
+        return next;
+      });
+    };
+
     socket.on("message:new", handleNewMessage)
     socket.on("chat:updated_last_message", handleChatUpdated)
+    socket.on("typing:started", handleTypingStart)
+    socket.on("typing:stopped", handleTypingStop)
 
     return () => {
       socket.off("message:new", handleNewMessage)
       socket.off("chat:updated_last_message", handleChatUpdated)
+      socket.off("typing:started", handleTypingStart)
+      socket.off("typing:stopped", handleTypingStop)
+      // Reset typing state when unmounting or changing chat
+      setTypingUsers({})
     }
   }, [socket, chatId, isConnected, queryClient])
 
@@ -86,5 +109,15 @@ export function useChatSocket(chatId: string | undefined) {
     })
   }
 
-  return { sendMessage, isConnected }
+  const sendTypingStart = () => {
+    if (!socket || !chatId) return;
+    socket.emit("typing:start", { chatId });
+  }
+
+  const sendTypingStop = () => {
+    if (!socket || !chatId) return;
+    socket.emit("typing:stop", { chatId });
+  }
+
+  return { sendMessage, isConnected, typingUsers, sendTypingStart, sendTypingStop }
 }
