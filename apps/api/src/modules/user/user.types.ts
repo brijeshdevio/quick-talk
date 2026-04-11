@@ -14,7 +14,7 @@ export interface IUser extends Document {
 }
 
 // Safe public projection — never expose password
-export type PublicUser = Pick
+export type PublicUser = Pick<
   IUser,
   "_id" | "username" | "email" | "avatar" | "bio" | "isOnline" | "lastSeen"
 >;
