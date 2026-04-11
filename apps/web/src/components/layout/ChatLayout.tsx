@@ -27,7 +27,8 @@ const getChatName = (chat: Chat, currentUserId?: string) => {
   return other?.username || "Unknown User"
 }
 
-const getChatInitials = (name: string) => {
+const getChatInitials = (name?: string) => {
+  if (!name) return "??"
   return name.slice(0, 2).toUpperCase()
 }
 
