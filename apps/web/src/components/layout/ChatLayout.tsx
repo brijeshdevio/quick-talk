@@ -102,9 +102,9 @@ export function ChatLayout() {
       <aside className="z-10 flex h-full w-72 shrink-0 flex-col border-r border-surface-container-low bg-surface-container-lowest shadow-[10px_0_40px_-20px_rgba(45,52,53,0.05)]">
         {/* Branding */}
         <div className="p-6 pb-4">
-          <h1 className="text-xl font-bold tracking-tight">
-            The Silent Architect
-          </h1>
+          <Link to="/">
+            <h1 className="text-xl font-bold tracking-tight">Quick Talk</h1>
+          </Link>
           <p className="mt-1 text-xs text-tertiary-brand">Editorial Chat</p>
         </div>
 
